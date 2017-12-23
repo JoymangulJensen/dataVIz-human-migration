@@ -27,23 +27,15 @@
       </button>
       
     </nav>
-
+    <br/><br/><br/> 
     <main role="main">
-
-      <!-- Main jumbotron for a primary marketing message or call to action -->
-      <div class="jumbotron">
-        <div class="container">
-          <h1 class="display-3">Hello, world!</h1>
-          <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-          
-        </div>
-      </div>
 
       <div class="container">
         <!-- Example row of columns -->
         <div class="row">
           <div class="col-md-12">
             <div id="world_map_graph_d3">
+
             </div>
           </div>
         </div>
@@ -60,17 +52,78 @@
 
    
     <script>
-        // Feel free to change or delete any of the code you see in this editor!
-        var svg = d3.select("#world_map_graph_d3").append("svg")
-        .attr("width", 960)
-        .attr("height", 500)
+        var width = 960,
+            height = 580,
+            min_year = 2000,
+            max_years = 2015,
+            features,
+            pib_by_country;
 
-        svg.append("text")
-        .text("Edit the code below to change me!")
-        .attr("y", 200)
-        .attr("x", 120)
-        .attr("font-size", 36)
-        .attr("font-family", "monospace")
+        var svg = d3.select( "#world_map_graph_d3" )
+          .append( "svg" )
+          .attr( "width", width )
+          .attr( "height", height );
+
+        var projection = d3.geoMercator()
+          .scale(width / 2 / Math.PI)
+          //.scale(100)
+          .translate([width / 2, height / 2]);
+
+        var path = d3.geoPath() // d3.geo.path avec d3 version 3
+                    .projection(projection);
+
+        d3.csv("data/pib_by_country.csv", function(data){
+          pib_by_country = data;
+          
+        });
+
+        d3.json("data/world.json", function(json) {
+          features = json.features;
+          init_pib();
+          
+          console.log(features);
+          svg.selectAll("path")
+              .data(features)
+              .enter()
+              .append("path")
+              .attr("d", path);
+        });
+
+        function init_pib(){
+          for(var i = 0; i < features.length; i++){
+            var indice_country = pib_by_country.findIndex(p => p['Country Code'] == features[i].id);
+            if(indice_country != -1){
+              features[i].pib = pib_by_country[indice_country];
+              features[i].pib.average = calculate_average_pib_between_years(min_year, max_years, pib_by_country[indice_country]);
+            }else{
+              var pib = {};
+              pib.average = -1;
+              features[i].pib = pib;
+            }
+          }
+        }
+
+        function update_pib(first_years, last_years){
+          for(var i = 0; i < features.length; i++){
+            if(features[i].pib.average != -1){
+              features[i].pib.average = calculate_average_pib_between_years(first_years, last_years, features[i].pib);
+            }
+          }
+        }
+
+        function calculate_average_pib_between_years(first_years, last_years, one_country_pib){
+          var nb_annee = last_years-first_years+1;
+          var somme = 0;
+          for(var j = first_years; j <= last_years; j++){
+            var value = parseFloat(one_country_pib[""+j]);
+            if(value){
+              somme += value;
+            }else{
+              nb_annee--;
+            }
+          }
+          return (somme / nb_annee);
+        }
   </script>
 
    <!-- Bootstrap core JavaScript
