@@ -57,7 +57,8 @@
             min_year = 2000,
             max_years = 2015,
             features,
-            pib_by_country;
+            pib_by_country,
+            migrations;
 
         var svg = d3.select( "#world_map_graph_d3" )
           .append( "svg" )
@@ -74,20 +75,64 @@
 
         d3.csv("data/pib_by_country.csv", function(data){
           pib_by_country = data;
-          
         });
 
+        
+
         d3.json("data/world.json", function(json) {
-          features = json.features;
-          init_pib();
-          
-          console.log(features);
-          svg.selectAll("path")
-              .data(features)
-              .enter()
-              .append("path")
-              .attr("d", path);
+          d3.csv("data/migration_2000_2015.csv", function(data){
+            migrations = data;
+            features = json.features;
+            init_pib();
+            init_migration();
+            svg.selectAll("path")
+                .data(features)
+                .enter()
+                .append("path")
+                .attr("d", path);
+          });
         });
+
+        function init_migration(){
+          for(var i = 0; i < features.length; i++){
+
+            var migration = {};
+            var departure = {};
+            var arrive = {};
+            for(var y = min_year; y<=max_years; y++){
+              departure[''+y] = new Array();
+              arrive[''+y] = new Array();
+            }
+            migration.departure = departure;
+            migration.arrive = arrive;
+            features[i].migration = migration;
+          }
+          var indice_migration = 0;
+          for(var i = 0; i < features.length; i++){
+            while(migrations[indice_migration].CODECOUNTRY < features[i].id){
+              indice_migration++;
+            }
+            console.log("-----------------------------------------------------");
+            console.log(migrations[indice_migration].CODECOUNTRY);
+            console.log(features[i].id);
+            console.log(indice_migration);
+            while(migrations[indice_migration].CODECOUNTRY == features[i].id){
+              //Nous somme dans le cas ou nous avons trouvé des elements je me suis compris c'est lessentiel ^^
+              var migrate = {};
+              migrate.dest = migrations[indice_migration].COU;
+              migrate.value = migrations[indice_migration].Value;
+              if(migrations[indice_migration].VAR == "INFLOW"){
+                // Nous somme dans le cas de personne entrante (arrive)
+                features[i].migration.arrive[''+migrations[indice_migration].YEAR].push(migrate);
+              }else{
+                // Nous somme dans le cas de personne partante (departure)
+                features[i].migration.departure[''+migrations[indice_migration].YEAR].push(migrate);
+              }
+              indice_migration++;
+            }
+          }
+          console.log(features);
+        }
 
         function init_pib(){
           for(var i = 0; i < features.length; i++){
