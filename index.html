@@ -78,11 +78,10 @@
         });
 
         
-
         d3.json("data/world.json", function(json) {
           d3.csv("data/migration_2000_2015.csv", function(data){
             migrations = data;
-            features = json.features;
+            features = json.features; // list of all countries : {id: "AFG", migration: {…}, pib: {..}}
             init_pib();
             init_migration();
             svg.selectAll("path")
@@ -94,12 +93,14 @@
         });
 
         function init_migration(){
-          for(var i = 0; i < features.length; i++){
+          // For each country in the world (180), 
+          // initialize 'migration' in 'features'.
+          for (var i = 0; i < features.length; i++){
 
             var migration = {};
             var departure = {};
             var arrive = {};
-            for(var y = min_year; y<=max_years; y++){
+            for (var y = min_year; y <= max_years; y++){
               departure[''+y] = new Array();
               arrive[''+y] = new Array();
             }
@@ -107,29 +108,42 @@
             migration.arrive = arrive;
             features[i].migration = migration;
           }
-          var indice_migration = 0;
+
+
+          var migrations_pointer = 0; // pointer for the migrations file.
+
           for(var i = 0; i < features.length; i++){
-            while(migrations[indice_migration].CODECOUNTRY < features[i].id){
-              indice_migration++;
+
+            // We move the pointer just before the 1st relevant line.
+            while(migrations[migrations_pointer].CODECOUNTRY < features[i].id){
+              migrations_pointer++;
             }
             console.log("-----------------------------------------------------");
-            console.log(migrations[indice_migration].CODECOUNTRY);
+            console.log(migrations[migrations_pointer].CODECOUNTRY);
             console.log(features[i].id);
-            console.log(indice_migration);
-            while(migrations[indice_migration].CODECOUNTRY == features[i].id){
-              //Nous somme dans le cas ou nous avons trouvé des elements je me suis compris c'est lessentiel ^^
+            console.log(migrations_pointer);
+            console.log(migrations[migrations_pointer])
+    
+            // For all relevant lines, do something.
+            while(migrations[migrations_pointer].CODECOUNTRY == features[i].id){
               var migrate = {};
-              migrate.dest = migrations[indice_migration].COU;
-              migrate.value = migrations[indice_migration].Value;
-              if(migrations[indice_migration].VAR == "INFLOW"){
-                // Nous somme dans le cas de personne entrante (arrive)
-                features[i].migration.arrive[''+migrations[indice_migration].YEAR].push(migrate);
+              migrate.dest = migrations[migrations_pointer].COU;
+              migrate.value = migrations[migrations_pointer].Value;
+              if(migrations[migrations_pointer].VAR == "INFLOW"){
+                // Nous sommes dans le cas de personnes entrantes.
+                features[i].migration.arrive[''+migrations[migrations_pointer].YEAR].push(migrate);
               }else{
-                // Nous somme dans le cas de personne partante (departure)
-                features[i].migration.departure[''+migrations[indice_migration].YEAR].push(migrate);
+                // Nous sommes dans le cas de personnes partantes.
+                features[i].migration.departure[''+migrations[migrations_pointer].YEAR].push(migrate);
               }
-              indice_migration++;
-            }
+
+              // If migrations_pointer = migrations.length - 1 : break loop.
+              if (migrations[migrations_pointer + 1] === undefined) { 
+                break;
+              } else {
+                migrations_pointer++;  // Else, increment pointer.
+              }
+            } 
           }
           console.log(features);
         }
