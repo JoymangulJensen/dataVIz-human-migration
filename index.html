@@ -41,8 +41,7 @@
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <a class="navbar-brand" href="#">Home</a>
       <a class="navbar-brand" href="#">Help</a>
-      </button>
-      
+      <a onclick="reset()" class="navbar-brand" href="#">reset</a>
     </nav>
     <br/><br/><br/> 
     <main role="main">
@@ -72,19 +71,21 @@
         var width = 960,
             height = 580,
             min_year = 2000,
-            max_years = 2015,
-            min_select_year = 2000,
-            max_select_year = 2015,
+            max_year = 2015,
+            min_selected_year = 2000,
+            max_selected_year = 2015,
             features,
             pib_by_country,
-            min_key = 0, // Pour le moment mis au pif
-            max_key = 100,
+            min_key_pib,
+            max_key_pib,
+            min_key_migrant,
+            max_key_migrant,
             migrations,
             country_draw;
 
 
         var color = d3.scaleQuantize()
-          .range(["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300", "#001a00", "#000000"]);
+          .range(["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"]);
 
         var svg = d3.select( "#world_map_graph_d3" )
           .append( "svg" )
@@ -115,8 +116,8 @@
             var test1,test2;
             init_pib();
             init_migration();
-            calcule_nb_total_migrant_between(min_year, 2015);
-            color.domain([min_key*0.5,max_key/25]);
+            calcule_nb_total_migrant_between(min_year, max_year);
+            color.domain([min_key_migrant*0.5,max_key_migrant/25]);
             country_draw = svg.selectAll("path")
                 .data(features)
                 .enter()
@@ -157,13 +158,31 @@
         });
 
         function change_coloration_to_pib(){
-          update_pib(min_select_year, max_select_year);
           color = d3.scaleQuantize()
-          .range(["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33", "#00061a", "#000000"]);
-          color.domain([min_key*0.125,max_key*0.125]);
+            .range(["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"])
+            .domain([min_key_pib*0.125,max_key_pib*0.125]);
           country_draw.style("fill", function(d) {
                   //on prend la valeur recuperee plus haut
                   var value = d.pib.average;
+                  if (value) {
+                      return color(value);
+                  } else {
+                      // si pas de valeur alors en gris
+                      return "#ccc";
+                  }
+                });
+        }
+
+        function reset(){
+          calcule_nb_total_migrant_between(min_year, max_year);
+          min_selected_year = min_year;
+          max_selected_year = max_year;
+          color = d3.scaleQuantize()
+            .range(["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"])
+            .domain([min_key_migrant*0.5,max_key_migrant/25]);
+          country_draw.style("fill", function(d) {
+                  //on prend la valeur recuperee plus haut
+                  var value = d.migration.ratio;
                   if (value) {
                       return color(value);
                   } else {
@@ -179,8 +198,8 @@
         and features[i].migration.ration = features[i].migration.arrive.somme / features[i].migration.departure.somme
         */
         function calcule_nb_total_migrant_between(min, max){
-          max_key = -100000;
-          min_key = 1000000;
+          max_key_migrant = -100000;
+          min_key_migrant = 1000000;
           for(var i = 0; i < features.length; i++){// Pour chaque pays
             var sums_arrive = {}; 
             var sums_departure= {}; 
@@ -211,17 +230,26 @@
             features[i].migration.arrive.sommes = sums_arrive;
             features[i].migration.arrive.somme = sum_arrive;
             features[i].migration.ratio = sum_arrive/sum_departure;
-            min_max_key(sum_arrive/sum_departure);
+            min_max_key_migrant(sum_arrive/sum_departure);
           }
-          console.log(min_key, max_key);
+          console.log(min_key_migrant, max_key_migrant);
         }
 
-        function min_max_key(val){
-          if(max_key<val){
-            max_key = val;
+        function min_max_key_migrant(val){
+          if(max_key_migrant<val){
+            max_key_migrant = val;
           }
-          if(min_key>val){
-            min_key = val;
+          if(min_key_migrant>val){
+            min_key_migrant = val;
+          }
+        }
+
+        function min_max_key_pib(val){
+          if(max_key_pib<val){
+            max_key_pib = val;
+          }
+          if(min_key_pib>val){
+            min_key_pib = val;
           }
         }
 
@@ -233,7 +261,7 @@
             var migration = {};
             var departure = {};
             var arrive = {};
-            for (var y = min_year; y <= max_years; y++){
+            for (var y = min_year; y <= max_year; y++){
               departure[''+y] = new Array();
               arrive[''+y] = new Array();
             }
@@ -242,9 +270,7 @@
             migration.departure = departure;
             migration.arrive = arrive;
             features[i].migration = migration;
-            
           }
-
 
           var migrations_pointer = 0; // pointer for the migrations file.
 
@@ -279,33 +305,31 @@
         }
 
         function init_pib(){
-          min_key = 10000000000;
-          max_key = -10000000000;
+          min_key_pib = 10000000000;
+          max_key_pib = -10000000000;
           for(var i = 0; i < features.length; i++){
             var indice_country = pib_by_country.findIndex(p => p['Country Code'] == features[i].id);
             if(indice_country != -1){
               features[i].pib = pib_by_country[indice_country];
-              features[i].pib.average = calculate_average_pib_between_years(min_year, max_years, pib_by_country[indice_country]);
-              min_max_key(features[i].pib.average);
+              features[i].pib.average = calculate_average_pib_between_years(min_year, max_year, pib_by_country[indice_country]);
+              min_max_key_pib(features[i].pib.average);
             }else{
               var pib = {};
               pib.average = -1;
               features[i].pib = pib;
             }
           }
-          console.log(min_key, max_key);
         }
 
         function update_pib(first_years, last_years){
-          min_key = 10000000000;
-          max_key = -10000000000;
+          min_key_pib = 10000000000;
+          max_key_pib = -10000000000;
           for(var i = 0; i < features.length; i++){
             if(features[i].pib.average != -1){
               features[i].pib.average = calculate_average_pib_between_years(first_years, last_years, features[i].pib);
-              min_max_key(features[i].pib.average);
+              min_max_key_pib(features[i].pib.average);
             }
           }
-          console.log(min_key, max_key);
         }
 
         function calculate_average_pib_between_years(first_years, last_years, one_country_pib){
