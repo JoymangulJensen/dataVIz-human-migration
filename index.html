@@ -73,16 +73,18 @@
             height = 580,
             min_year = 2000,
             max_years = 2015,
+            min_select_year = 2000,
+            max_select_year = 2015,
             features,
             pib_by_country,
             min_key = 0, // Pour le moment mis au pif
             max_key = 100,
-            migrations;
+            migrations,
+            country_draw;
 
 
         var color = d3.scaleQuantize()
-          .range(["rgb(237,248,233)", "rgb(186,228,179)",
-          "rgb(116,196,118)", "rgb(49,163,84)", "rgb(0,109,44)"]);
+          .range(["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300", "#001a00", "#000000"]);
 
         var svg = d3.select( "#world_map_graph_d3" )
           .append( "svg" )
@@ -114,8 +116,8 @@
             init_pib();
             init_migration();
             calcule_nb_total_migrant_between(min_year, 2015);
-            color.domain([min_key*1,max_key/50]);
-            svg.selectAll("path")
+            color.domain([min_key*0.5,max_key/25]);
+            country_draw = svg.selectAll("path")
                 .data(features)
                 .enter()
                 .append("path")
@@ -130,32 +132,46 @@
                       return "#ccc";
                   }
                 })
-                .on('mousemove', function(pay) {
-                  console.log(pay)
-                  var mouse = d3.mouse(svg.node()).map(function(pay) {
-                      return parseInt(pay);
+                .on('mousemove', function(country) {
+                  var mouse = d3.mouse(svg.node()).map(function(country) {
+                      return parseInt(country);
                   });
 
                   tooltip.classed('hidden', false)
                     .attr('style', 'left:' + (mouse[0]+195) + 'px; top:' + (mouse[1]+10) + 'px')
-                  
-
-                  var value = pay.properties.name;
-                  if (value){
-                        tooltip.html(pay.properties.name + "<br> More info in the console (F12)");
+                  //console.log(country);
+                  if (country.properties.name){
+                        tooltip.html(country.properties.name + "<br> PIB : " + country.pib.average + "<br> Depart : " + country.migration.departure.somme + "<br> Arriver : " + country.migration.arrive.somme + "<br> Ratio : " + country.migration.ratio);
                   } else {
                         tooltip.html("Unknown country.<br>Look at the console (F12)");
                   }
-
-
-
-
                 })
                 .on('mouseout', function() {
                     tooltip.classed('hidden', true);
+                })
+                .on('click', function(country){
+                  console.log(country);
+                  change_coloration_to_pib();
                 });
           });
         });
+
+        function change_coloration_to_pib(){
+          update_pib(min_select_year, max_select_year);
+          color = d3.scaleQuantize()
+          .range(["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33", "#00061a", "#000000"]);
+          color.domain([min_key*0.125,max_key*0.125]);
+          country_draw.style("fill", function(d) {
+                  //on prend la valeur recuperee plus haut
+                  var value = d.pib.average;
+                  if (value) {
+                      return color(value);
+                  } else {
+                      // si pas de valeur alors en gris
+                      return "#ccc";
+                  }
+                });
+        }
 
         /* This function calculate the migrant and imigrant between two date and save it in a table. For each row you have the sum.
         exemple : features[i].migration.departure.sommes['AZE'] = sum(features[i].migration.departure.years where dest = 'AZE') 
