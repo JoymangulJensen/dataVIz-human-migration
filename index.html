@@ -103,7 +103,7 @@
           .translate([width / 2, height / 2]);
 
         var path = d3.geoPath() // d3.geo.path avec d3 version 3
-                    .projection(projection);
+                     .projection(projection);
 
         d3.csv("data/pib_by_country.csv", function(data){
           pib_by_country = data;
@@ -142,7 +142,10 @@
                     .attr('style', 'left:' + (mouse[0]+195) + 'px; top:' + (mouse[1]+10) + 'px')
                   //console.log(country);
                   if (country.properties.name){
-                        tooltip.html(country.properties.name + "<br> PIB : " + country.pib.average + "<br> Depart : " + country.migration.departure.somme + "<br> Arriver : " + country.migration.arrive.somme + "<br> Ratio : " + country.migration.ratio);
+                        tooltip.html(country.properties.name + "<br> PIB : " + abbridgedNumber(country.pib.average) + 
+                          "<br> Entrées : " + abbridgedNumber(country.migration.departure.somme) + 
+                          "<br> Sorties : " + abbridgedNumber(country.migration.arrive.somme) + 
+                          "<br> Ratio : " + abbridgedNumber(country.migration.ratio));
                   } else {
                         tooltip.html("Unknown country.<br>Look at the console (F12)");
                   }
@@ -345,6 +348,35 @@
           }
           return (somme / nb_annee);
         }
+
+
+
+        // Utility functions
+        function abbridgedNumber(n){
+          // Round number n to 2 decimals
+          // If n > 1,000,000,000, return "1 Md"
+          // Same for 1,000,000 and 1,000.
+
+          if (n >= 1000000000){
+            n = Math.round(n * 100 /1000000000)/100
+            n = n + " Md"
+          }
+          else if (n >= 1000000){
+            n = Math.round(n*100/1000000)/100
+            n = n + " M"
+          }
+          else if (n >= 1000){
+            n = Math.round(n*100/1000)/100
+            n = n + " k"
+          }
+          else {
+            n = Math.round(n*100)/100
+          }
+          return n
+        }
+
+
+
   </script>
 
    <!-- Bootstrap core JavaScript
