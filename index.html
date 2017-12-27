@@ -110,9 +110,10 @@
           d3.csv("data/migration_2000_2015.csv", function(data){
             migrations = data;
             features = json.features; // list of all countries : {id: "AFG", migration: {…}, pib: {..}}
+            var test1,test2;
             init_pib();
             init_migration();
-            calcule_nb_total_migrant_between(min_year, max_years);
+            calcule_nb_total_migrant_between(min_year, 2015);
             color.domain([min_key*1,max_key/50]);
             svg.selectAll("path")
                 .data(features)
@@ -156,6 +157,11 @@
           });
         });
 
+        /* This function calculate the migrant and imigrant between two date and save it in a table. For each row you have the sum.
+        exemple : features[i].migration.departure.sommes['AZE'] = sum(features[i].migration.departure.years where dest = 'AZE') 
+        and features[i].migration.departure.somme = sum(sommes)
+        and features[i].migration.ration = features[i].migration.arrive.somme / features[i].migration.departure.somme
+        */
         function calcule_nb_total_migrant_between(min, max){
           max_key = -100000;
           min_key = 1000000;
@@ -257,25 +263,33 @@
         }
 
         function init_pib(){
+          min_key = 10000000000;
+          max_key = -10000000000;
           for(var i = 0; i < features.length; i++){
             var indice_country = pib_by_country.findIndex(p => p['Country Code'] == features[i].id);
             if(indice_country != -1){
               features[i].pib = pib_by_country[indice_country];
               features[i].pib.average = calculate_average_pib_between_years(min_year, max_years, pib_by_country[indice_country]);
+              min_max_key(features[i].pib.average);
             }else{
               var pib = {};
               pib.average = -1;
               features[i].pib = pib;
             }
           }
+          console.log(min_key, max_key);
         }
 
         function update_pib(first_years, last_years){
+          min_key = 10000000000;
+          max_key = -10000000000;
           for(var i = 0; i < features.length; i++){
             if(features[i].pib.average != -1){
               features[i].pib.average = calculate_average_pib_between_years(first_years, last_years, features[i].pib);
+              min_max_key(features[i].pib.average);
             }
           }
+          console.log(min_key, max_key);
         }
 
         function calculate_average_pib_between_years(first_years, last_years, one_country_pib){
