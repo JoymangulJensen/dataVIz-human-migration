@@ -60,9 +60,10 @@
       .track-overlay {
         pointer-events: stroke;
         stroke-width: 50px;
-        stroke: : transparent;
+        stroke: transparent;
         cursor: crosshair;
       }
+
       .handle {
         fill: #fff;
         stroke: #000;
@@ -70,7 +71,9 @@
         stroke-width: 1.25px;
       }   
 
-
+      h1{
+        text-align: center !important;
+      }
 
     </style>
 
@@ -80,24 +83,46 @@
   <body>
 
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="#">Home</a>
-      <a onclick="displayHelp()" class="navbar-brand" style="color: white" >Help</a>
-      <a onclick="reset()" class="navbar-brand" href="#">Reset</a>
-      <a onclick="displaySelectedRatio()" class="navbar-brand" href="#">Migrant-ratio</a>
-      <a onclick="displaySelectedPib()" class="navbar-brand" href="#">PIB</a>
+        
       <a class="navbar-brand" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
+      <a onclick="displayHelp()" class="navbar-brand"  href="#">Help</a>
+      <a onclick="reset()" class="navbar-brand" href="#">Reset</a>
+      <!--<a onclick="displayRatio()" class="navbar-brand selected" href="#">Migrant-ratio</a>-->
+      <!--<a onclick="displayPib()" class="navbar-brand" href="#">GDP</a>-->
+      
     </nav>
-    <br/><br/><br/> 
+    <br/><br/><br/>
     <main role="main">
 
       <div class="container">
         <!-- Example row of columns -->
         <div class="row">
-          <div class="col-md-12">
-            <div id="world_map_graph_d3">
-
-            </div>
+          <div class="col-md-10">
+            <h1 id="title">World map !</h1>
           </div>
+        </div>
+        <div class="row">
+          <div class="col-md-10">
+            <div id="slider_d3"></div>
+          </div>
+          <div class="col-md-2">
+            <select>
+                <option>Select a coloration</option>
+                <option onclick="displayPib()">GDP</option>
+                <option onclick="displayRatio()">Migrant-ratio</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+              <h1 class="pull pull-right">
+                Legend
+              </h1>
+            </div>
+          <div class="col-md-10">
+            <div class="pull pull-right" id="world_map_graph_d3"></div>
+          </div>
+          
         </div>
 
         <hr>
@@ -112,11 +137,11 @@
 
    
     <script>
-        var width = 960,
-            height = 580;
+        var width = 960,// 960,
+            height = 580; //580;
           
-        var min_year = 2000,
-            max_year = 2015,
+        var MIN_YEAR = 2000,
+            MAX_YEAR = 2015,
             min_selected_year = 2000,
             max_selected_year = 2015;
         
@@ -129,7 +154,11 @@
             pib_data,
             migration_data,
             country_draw;
+
+        var country_selected;
         
+        var pib_selected = false,
+            migrant_selected = false;
 
         // Shades of light blue to saturated blue.
         var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"]
@@ -144,6 +173,11 @@
           .append( "svg" )
           .attr( "width", width )
           .attr( "height", height );
+
+        var svg_slider = d3.select( "#slider_d3" )
+          .append( "svg" )
+          .attr( "width", width )
+          .attr( "height", 50 );
 
         var map = svg.append('g')
           .attr("class", "map")
@@ -163,13 +197,13 @@
 
         var slider_width = width - 70,
             x_slider = d3.scaleLinear()
-              .domain([min_year, max_year])
+              .domain([MIN_YEAR, MAX_YEAR])
               .range([0, slider_width])
               .clamp(true);
         
-        var double_slider = svg.append("g")
+        var double_slider = svg_slider.append("g")
             .attr("class", "slider")
-            .attr("transform", "translate(" + 30 + "," + 30 + ")");
+            .attr("transform", "translate(" + 30 + "," + 15 + ")");
 
         double_slider.append("line")
             .attr("class", "track")
@@ -214,13 +248,19 @@
         function setHandle1(h) {
           handle1.attr("cx", x_slider(Math.round(h)));
           var year = Math.round(h);
-          min_selected_year = year
+          if(min_selected_year != year){
+            min_selected_year = year;
+            updateDate();
+          }
         }
 
         function setHandle2(h) {
           handle2.attr("cx", x_slider(Math.round(h)));
           var year = Math.round(h);
-          max_selected_year = year
+          if(max_selected_year != year){
+            max_selected_year = year;
+            updateDate();
+          }
         }
         
         function getRange() {
@@ -249,7 +289,7 @@
             // Init.
             feedPibData();
             feedMigrationData();
-            setRange(min_year, max_year);
+            setRange(MIN_YEAR, MAX_YEAR);
             feedSelectedMigrationData();
             feedSelectedAveragePib();
 
@@ -284,65 +324,98 @@
                     tooltip.classed('hidden', true);
                 })
                 .on('click', function(country){ // Click on a country to see migration.
-                  displaySelectedMigration(country)
+                  console.log(country);
+                  country_selected = country;
+                  displaySelected()
                 });
           });
         });
 
-
-        function displaySelectedRatio(){
-          feedSelectedMigrationData();
-          feedSelectedAveragePib();
-
-          color = d3.scaleQuantize()
-                    .range(shades_blue)
-                    .domain([lowest_ratio*0.5, highest_ratio/25]);
-          
-          console.log(lowest_ratio, highest_ratio)
-
-          country_draw.style("fill", function(d) {
-                  var ratio = d.migration.ratio;
-                  console.log(ratio)
-                  if (ratio) {
-                    return color(ratio);
-                  } else {
-                    return "#ccc"; // #ccc = "grey"
-                  }
-            })
+        function display(){
+          if(pib_selected){
+            displayPib();
+          }else{
+            displayRatio();
+          }
         }
 
-        function displaySelectedPib(){
-          feedSelectedMigrationData();
-          feedSelectedAveragePib();
-
-          color = d3.scaleQuantize()
+        function displayPib(){
+          migrant_selected = false;
+          pib_selected = true;
+          if(country_selected){
+            displaySelectedPib();
+          }else{
+            color = d3.scaleQuantize()
                     .range(shades_blue)
                     .domain([lowest_pib*0.125,highest_pib*0.125]);
 
-          country_draw.style("fill", function(d) {
-                  var pib = d.pib.average;
-                  if (pib) {
-                    return color(pib);
-                  } else {
-                    return "#ccc"; // #ccc = "grey"
-                  }
-                });
+            country_draw.style("fill", function(d) {
+              var pib = d.pib.average;
+              if (pib) {
+                return color(pib);
+              } else {
+                return "#ccc"; // #ccc = "grey"
+              }
+            });
+          }
         }
 
-        function displaySelectedMigration(country){
-          feedSelectedMigrationData();
-          feedSelectedAveragePib();
+        function displayRatio(){
+          migrant_selected = true;
+          pib_selected = false;
+          if(country_selected){
+            displaySelectedMigration();
+          }else{
+            color = d3.scaleQuantize()
+                    .range(shades_blue)
+                    .domain([lowest_ratio*0.5, highest_ratio/25]);
 
-          var lowest_migration_flow = d3.min(d3.values(country.migration.arrive.sommes)),
-              highest_migration_flow = d3.max(d3.values(country.migration.arrive.sommes));
+            country_draw.style("fill", function(d) {
+              var ratio = d.migration.ratio;
+              if (ratio) {
+                return color(ratio);
+              } else {
+                return "#ccc"; // #ccc = "grey"
+              }
+            })
+          }
+        }
+
+        function displaySelected(){
+          if(pib_selected){
+            displaySelectedPib();
+          }else{
+            displaySelectedMigration();
+          }
+        }
+
+        function displaySelectedPib(){
+
+          color = d3.scaleQuantize()
+            .range(shades_blue)
+            .domain([lowest_pib*0.125,highest_pib*0.125]);
+
+          country_draw.style("fill", function(d) {
+            var pib = d.pib.average;
+            if (country_selected.migration.arrive.sommes[d.id]) {
+              return color(pib);
+            } else {
+              return "#ccc"; // #ccc = "grey"
+            }
+          });
+        }
+
+        function displaySelectedMigration(){
+
+          var lowest_migration_flow = d3.min(d3.values(country_selected.migration.arrive.sommes)),
+              highest_migration_flow = d3.max(d3.values(country_selected.migration.arrive.sommes));
 
           color = d3.scaleQuantize()
                     .range(shades_blue)
                     .domain([lowest_migration_flow, highest_migration_flow]);
           
-          country_draw
-            .style("fill", function(d) {
-              var migration_number = country.migration.arrive.sommes[d.id];
+          country_draw.style("fill", function(d) {
+              var migration_number = country_selected.migration.arrive.sommes[d.id];
               if (migration_number){
                 return color(migration_number);
               } else {
@@ -351,14 +424,27 @@
             });
         }
 
+        function updateDate(){
+          feedPibData();
+          feedMigrationData();
+          feedSelectedMigrationData();
+          feedSelectedAveragePib();
+          if(country_selected){
+            displaySelected();
+          }else if(migrant_selected || pib_selected){
+            display();
+          }
+            
+        }
 
         function reset(){
           // Init.
           feedPibData();
           feedMigrationData();
-          setRange(min_year, max_year);
+          setRange(MIN_YEAR, MAX_YEAR);
           feedSelectedMigrationData();
           feedSelectedAveragePib();
+          country_selected = null;
           country_draw.style("fill", "#ccc");
         }
 
@@ -369,7 +455,7 @@
             var migration = {};
             var departure = {};
             var arrive = {};
-            for (var y = min_year; y <= max_year; y++){
+            for (var y = MIN_YEAR; y <= MAX_YEAR; y++){
               departure[''+y] = new Array();
               arrive[''+y] = new Array();
             }
@@ -467,7 +553,16 @@
             map_data[i].migration.ratio = ratio;
             updateExtremaRatio(ratio);
           }
+        }
 
+        // Update max or min migrant ratio **if needed**.
+        function updateExtremaRatio(val){
+          if(highest_ratio<val){
+            highest_ratio = val;
+          }
+          if(lowest_ratio>val){
+            lowest_ratio = val;
+          }
         }
 
         // Gather all PIB from pib_data and feed it into map_data.
@@ -500,26 +595,6 @@
           }
         }
 
-        // Update max or min migrant ratio **if needed**.
-        function updateExtremaRatio(val){
-          if(highest_ratio<val){
-            highest_ratio = val;
-          }
-          if(lowest_ratio>val){
-            lowest_ratio = val;
-          }
-        }
-
-        // Update max or min PIB **if needed**.
-        function updateExtremaPib(val){
-          if(highest_pib<val){
-            highest_pib = val;
-          }
-          if(lowest_pib>val){
-            lowest_pib = val;
-          }
-        }
-
         function getAveragePib(first_years, last_years, one_country_pib){
           var nb_years = last_years-first_years+1;
           var sum = 0;
@@ -532,6 +607,16 @@
             }
           }
           return (sum / nb_years);
+        }
+
+        // Update max or min PIB **if needed**.
+        function updateExtremaPib(val){
+          if(highest_pib<val){
+            highest_pib = val;
+          }
+          if(lowest_pib>val){
+            lowest_pib = val;
+          }
         }
 
 
