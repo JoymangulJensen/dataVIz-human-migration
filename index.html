@@ -40,8 +40,11 @@
 
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <a class="navbar-brand" href="#">Home</a>
-      <a class="navbar-brand" href="#">Help</a>
-      <a onclick="reset()" class="navbar-brand" href="#">reset</a>
+      <a onclick="display_help()" class="navbar-brand" style="color: white" >Help</a>
+      <a onclick="reset()" class="navbar-brand" href="#">Reset</a>
+      <a onclick="change_coloration_to_ratio()" class="navbar-brand" href="#">Migrant-ratio</a>
+      <a onclick="change_coloration_to_pib()" class="navbar-brand" href="#">PIB</a>
+      <a class="navbar-brand" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
     </nav>
     <br/><br/><br/> 
     <main role="main">
@@ -69,33 +72,40 @@
    
     <script>
         var width = 960,
-            height = 580,
-            min_year = 2000,
+            height = 580;
+          
+        var min_year = 2000,
             max_year = 2015,
             min_selected_year = 2000,
-            max_selected_year = 2015,
-            features,
-            pib_by_country,
-            min_key_pib,
-            max_key_pib,
-            min_key_migrant,
-            max_key_migrant,
-            migrations,
+            max_selected_year = 2015;
+        
+        var lowest_pib,
+            highest_pib,
+            lowest_ratio,
+            highest_ratio;
+
+        var map_data,
+            pib_data,
+            migration_data,
             country_draw;
+        
+
+        // Shades of light blue to saturated blue.
+        var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"]
+        // Shades of light green to saturated green.
+        var shades_green = ["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"]
 
 
         var color = d3.scaleQuantize()
-          .range(["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"]);
+          .range(shades_green);
 
         var svg = d3.select( "#world_map_graph_d3" )
           .append( "svg" )
           .attr( "width", width )
           .attr( "height", height );
 
-
         var tooltip = d3.select('body').append('div')
           .attr('class', 'hidden tooltip');
-
 
         var projection = d3.geoMercator()
           .scale(width / 2 / Math.PI)
@@ -106,160 +116,180 @@
                      .projection(projection);
 
         d3.csv("data/pib_by_country.csv", function(data){
-          pib_by_country = data;
+          pib_data = data;
         });
         
         d3.json("data/world.json", function(json) {
           d3.csv("data/migration_2000_2015.csv", function(data){
-            migrations = data;
-            features = json.features; // list of all countries : {id: "AFG", migration: {…}, pib: {..}}
-            var test1,test2;
-            init_pib();
+            migration_data = data;
+            map_data = json.features; // list of all countries : {id: "AFG", migration: {…}, pib: {..}}
+            init_all_pib();
             init_migration();
-            calcule_nb_total_migrant_between(min_year, max_year);
-            color.domain([min_key_migrant*0.5,max_key_migrant/25]);
+            feed_migration_data(min_year, max_year);
             country_draw = svg.selectAll("path")
-                .data(features)
-                .enter()
+                .data(map_data).enter()
                 .append("path")
                 .attr("d", path)
-                .style("fill", function(d) {
-                  //on prend la valeur recuperee plus haut
-                  var value = d.migration.ratio;
-                  if (value) {
-                      return color(value);
-                  } else {
-                      // si pas de valeur alors en gris
-                      return "#ccc";
-                  }
-                })
+                .style("fill", "#ccc") // At the start, display nothing (for the moment)
                 .on('mousemove', function(country) {
                   var mouse = d3.mouse(svg.node()).map(function(country) {
                       return parseInt(country);
                   });
 
                   tooltip.classed('hidden', false)
-                    .attr('style', 'left:' + (mouse[0]+195) + 'px; top:' + (mouse[1]+10) + 'px')
-                  //console.log(country);
+                    .attr('style', 'left:' + (mouse[0]+195) + 'px; top:' + (mouse[1]+10) + 'px');
+
                   if (country.properties.name){
-                        tooltip.html(country.properties.name + "<br> PIB : " + abbridgedNumber(country.pib.average) + 
-                          "<br> Entrées : " + abbridgedNumber(country.migration.departure.somme) + 
-                          "<br> Sorties : " + abbridgedNumber(country.migration.arrive.somme) + 
-                          "<br> Ratio : " + abbridgedNumber(country.migration.ratio));
+                    tooltip.html(country.properties.name + "<br> PIB : " + round_numbers(country.pib.average) + 
+                      "<br> Entrées : " + round_numbers(country.migration.departure.somme) + 
+                      "<br> Sorties : " + round_numbers(country.migration.arrive.somme) + 
+                      "<br> Ratio : " + round_numbers(country.migration.ratio));
                   } else {
-                        tooltip.html("Unknown country.<br>Look at the console (F12)");
+                    tooltip.html("Unknown country.<br>Look at the console (F12)");
                   }
                 })
                 .on('mouseout', function() {
                     tooltip.classed('hidden', true);
                 })
-                .on('click', function(country){
-                  console.log(country);
-                  change_coloration_to_pib();
+                .on('click', function(country){ // Click on a country to see migration.
+                  change_coloration_to_migration(min_selected_year, max_selected_year, country)
                 });
           });
         });
 
+
+        function change_coloration_to_ratio(){
+          color = d3.scaleQuantize()
+                    .range(shades_blue)
+                    .domain([lowest_ratio*0.5, highest_ratio/25]);
+          
+          country_draw.style("fill", function(d) {
+                  var ratio = d.migration.ratio;
+                  if (ratio) {
+                    return color(ratio);
+                  } else {
+                    return "#ccc"; // #ccc = "grey"
+                  }
+            })
+        }
+
         function change_coloration_to_pib(){
           color = d3.scaleQuantize()
-            .range(["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"])
-            .domain([min_key_pib*0.125,max_key_pib*0.125]);
+                    .range(shades_blue)
+                    .domain([lowest_pib*0.125,highest_pib*0.125]);
+
           country_draw.style("fill", function(d) {
-                  //on prend la valeur recuperee plus haut
-                  var value = d.pib.average;
-                  if (value) {
-                      return color(value);
+                  var pib = d.pib.average;
+                  if (pib) {
+                    return color(pib);
                   } else {
-                      // si pas de valeur alors en gris
-                      return "#ccc";
+                    return "#ccc"; // #ccc = "grey"
                   }
                 });
         }
+
+        function change_coloration_to_migration(min_selected_year, max_selected_year, country){
+          var lowest_migration_flow = d3.min(d3.values(country.migration.arrive.sommes)),
+              highest_migration_flow = d3.max(d3.values(country.migration.arrive.sommes));
+
+          color = d3.scaleQuantize()
+                    .range(shades_blue)
+                    .domain([lowest_migration_flow, highest_migration_flow]);
+          
+          country_draw
+            .style("fill", function(d) {
+              var migration_number = country.migration.arrive.sommes[d.id];
+              if (migration_number){
+                return color(migration_number);
+              } else {
+                return "#ccc";
+              }
+            });
+        }
+
 
         function reset(){
-          calcule_nb_total_migrant_between(min_year, max_year);
+          feed_migration_data(min_year, max_year);
           min_selected_year = min_year;
           max_selected_year = max_year;
-          color = d3.scaleQuantize()
-            .range(["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"])
-            .domain([min_key_migrant*0.5,max_key_migrant/25]);
-          country_draw.style("fill", function(d) {
-                  //on prend la valeur recuperee plus haut
-                  var value = d.migration.ratio;
-                  if (value) {
-                      return color(value);
-                  } else {
-                      // si pas de valeur alors en gris
-                      return "#ccc";
-                  }
-                });
+
+          country_draw.style("fill", "#ccc");
         }
 
-        /* This function calculate the migrant and imigrant between two date and save it in a table. For each row you have the sum.
-        exemple : features[i].migration.departure.sommes['AZE'] = sum(features[i].migration.departure.years where dest = 'AZE') 
-        and features[i].migration.departure.somme = sum(sommes)
-        and features[i].migration.ration = features[i].migration.arrive.somme / features[i].migration.departure.somme
+
+        /* This function calculate the inflow and outflow of migrants
+        between two date and save it in a table. For each row you have the sum.
+        For example : 
+          map_data[country].migration.departure.sommes['AZE'] = 
+                sum(map_data[country].migration.departure.years where dest = 'AZE') 
+          map_data[country].migration.departure.somme = 
+                sum(sommes)
+          map_data[country].migration.ratio = 
+                map_data[country].migration.arrive.somme / map_data[country].migration.departure.somme
         */
-        function calcule_nb_total_migrant_between(min, max){
-          max_key_migrant = -100000;
-          min_key_migrant = 1000000;
-          for(var i = 0; i < features.length; i++){// Pour chaque pays
+        function feed_migration_data(min_year, max_year){
+          highest_ratio = -100000;
+          lowest_ratio = +100000;
+
+          for(var country = 0; country < map_data.length; country++){// Pour chaque pays
             var sums_arrive = {}; 
             var sums_departure= {}; 
             var sum_arrive = 0;
             var sum_departure = 0;
-            for (var y = min; y <= max; y++){// Pour chaque année de l'intervalle
-              for(var x = 0; x < features[i].migration.arrive[''+y].length; x++){
-                var val_arrive = parseInt((features[i].migration.arrive[''+y])[x].value);
+            for (var y = min_year; y <= max_year; y++){// Pour chaque année de l'intervalle
+              for(var x = 0; x < map_data[country].migration.arrive[''+y].length; x++){
+                var val_arrive = parseInt((map_data[country].migration.arrive[''+y])[x].value);
                 sum_arrive += val_arrive;
-                if(sums_arrive[(features[i].migration.arrive[''+y])[x].dest]){
-                  sums_arrive[(features[i].migration.arrive[''+y])[x].dest] += val_arrive;
+                if(sums_arrive[(map_data[country].migration.arrive[''+y])[x].dest]){
+                  sums_arrive[(map_data[country].migration.arrive[''+y])[x].dest] += val_arrive;
                 }else{
-                  sums_arrive[(features[i].migration.arrive[''+y])[x].dest] = val_arrive;
+                  sums_arrive[(map_data[country].migration.arrive[''+y])[x].dest] = val_arrive;
                 }
               }
-              for(var x = 0; x < features[i].migration.departure[''+y].length; x++){
-                var val_departure = parseInt((features[i].migration.departure[''+y])[x].value);
+              for(var x = 0; x < map_data[country].migration.departure[''+y].length; x++){
+                var val_departure = parseInt((map_data[country].migration.departure[''+y])[x].value);
                 sum_departure+=val_departure;
-                if(sums_departure[(features[i].migration.departure[''+y])[x].dest]){
-                  sums_departure[(features[i].migration.departure[''+y])[x].dest] += val_departure;
+                if(sums_departure[(map_data[country].migration.departure[''+y])[x].dest]){
+                  sums_departure[(map_data[country].migration.departure[''+y])[x].dest] += val_departure;
                 }else{
-                  sums_departure[(features[i].migration.departure[''+y])[x].dest] = val_departure;
+                  sums_departure[(map_data[country].migration.departure[''+y])[x].dest] = val_departure;
                 }
               }
             }
-            features[i].migration.departure.sommes = sums_departure;
-            features[i].migration.departure.somme = sum_departure;
-            features[i].migration.arrive.sommes = sums_arrive;
-            features[i].migration.arrive.somme = sum_arrive;
-            features[i].migration.ratio = sum_arrive/sum_departure;
-            min_max_key_migrant(sum_arrive/sum_departure);
-          }
-          console.log(min_key_migrant, max_key_migrant);
-        }
-
-        function min_max_key_migrant(val){
-          if(max_key_migrant<val){
-            max_key_migrant = val;
-          }
-          if(min_key_migrant>val){
-            min_key_migrant = val;
+            map_data[country].migration.departure.sommes = sums_departure;
+            map_data[country].migration.departure.somme = sum_departure;
+            map_data[country].migration.arrive.sommes = sums_arrive;
+            map_data[country].migration.arrive.somme = sum_arrive;
+            map_data[country].migration.ratio = sum_arrive/sum_departure;
+            update_extremum_ratio(sum_arrive/sum_departure);
           }
         }
 
-        function min_max_key_pib(val){
-          if(max_key_pib<val){
-            max_key_pib = val;
+
+        // Update max or min migrant ratio **if needed**.
+        function update_extremum_ratio(val){
+          if(highest_ratio<val){
+            highest_ratio = val;
           }
-          if(min_key_pib>val){
-            min_key_pib = val;
+          if(lowest_ratio>val){
+            lowest_ratio = val;
+          }
+        }
+
+        // Update max or min PIB **if needed**.
+        function update_extremum_pib(val){
+          if(highest_pib<val){
+            highest_pib = val;
+          }
+          if(lowest_pib>val){
+            lowest_pib = val;
           }
         }
 
         function init_migration(){
           // For each country in the world (180), 
-          // initialize 'migration' in 'features'.
-          for (var i = 0; i < features.length; i++){
+          // initialize 'migration' in 'map_data'.
+          for (var i = 0; i < map_data.length; i++){
 
             var migration = {};
             var departure = {};
@@ -272,33 +302,33 @@
             arrive['somme'] = new Array();
             migration.departure = departure;
             migration.arrive = arrive;
-            features[i].migration = migration;
+            map_data[i].migration = migration;
           }
 
-          var migrations_pointer = 0; // pointer for the migrations file.
+          var migrations_pointer = 0; // pointer for the migration_data file.
 
-          for(var i = 0; i < features.length; i++){
+          for(var i = 0; i < map_data.length; i++){
 
-            // We move the pointer just before the 1st relevant line.
-            while(migrations[migrations_pointer].CODECOUNTRY < features[i].id){
+            // Move the pointer just before the 1st relevant line.
+            while(migration_data[migrations_pointer].CODECOUNTRY < map_data[i].id){
               migrations_pointer++;
             }
     
             // For all relevant lines, do something.
-            while(migrations[migrations_pointer].CODECOUNTRY == features[i].id){
+            while(migration_data[migrations_pointer].CODECOUNTRY == map_data[i].id){
               var migrate = {};
-              migrate.dest = migrations[migrations_pointer].COU;
-              migrate.value = migrations[migrations_pointer].Value;
-              if(migrations[migrations_pointer].VAR == "INFLOW"){
+              migrate.dest = migration_data[migrations_pointer].COU;
+              migrate.value = migration_data[migrations_pointer].Value;
+              if(migration_data[migrations_pointer].VAR == "INFLOW"){
                 // Nous sommes dans le cas de personnes entrantes.
-                features[i].migration.arrive[''+migrations[migrations_pointer].YEAR].push(migrate);
+                map_data[i].migration.arrive[''+migration_data[migrations_pointer].YEAR].push(migrate);
               }else{
                 // Nous sommes dans le cas de personnes partantes.
-                features[i].migration.departure[''+migrations[migrations_pointer].YEAR].push(migrate);
+                map_data[i].migration.departure[''+migration_data[migrations_pointer].YEAR].push(migrate);
               }
 
-              // If migrations_pointer = migrations.length - 1 : break loop.
-              if (migrations[migrations_pointer + 1] === undefined) { 
+              // If migrations_pointer = migration_data.length - 1 : break loop.
+              if (migration_data[migrations_pointer + 1] === undefined) { 
                 break;
               } else {
                 migrations_pointer++;  // Else, increment pointer.
@@ -307,35 +337,35 @@
           }
         }
 
-        function init_pib(){
-          min_key_pib = 10000000000;
-          max_key_pib = -10000000000;
-          for(var i = 0; i < features.length; i++){
-            var indice_country = pib_by_country.findIndex(p => p['Country Code'] == features[i].id);
+        function init_all_pib(){
+          lowest_pib = 10000000000;
+          highest_pib = -10000000000;
+          for(var i = 0; i < map_data.length; i++){
+            var indice_country = pib_data.findIndex(p => p['Country Code'] == map_data[i].id);
             if(indice_country != -1){
-              features[i].pib = pib_by_country[indice_country];
-              features[i].pib.average = calculate_average_pib_between_years(min_year, max_year, pib_by_country[indice_country]);
-              min_max_key_pib(features[i].pib.average);
-            }else{
+              map_data[i].pib = pib_data[indice_country];
+              map_data[i].pib.average = get_average_pib(min_year, max_year, pib_data[indice_country]);
+              update_extremum_pib(map_data[i].pib.average);
+            } else {
               var pib = {};
               pib.average = -1;
-              features[i].pib = pib;
+              map_data[i].pib = pib;
             }
           }
         }
 
-        function update_pib(first_years, last_years){
-          min_key_pib = 10000000000;
-          max_key_pib = -10000000000;
-          for(var i = 0; i < features.length; i++){
-            if(features[i].pib.average != -1){
-              features[i].pib.average = calculate_average_pib_between_years(first_years, last_years, features[i].pib);
-              min_max_key_pib(features[i].pib.average);
+        function update_all_pib(first_years, last_years){
+          lowest_pib = 10000000000;
+          highest_pib = -10000000000;
+          for(var i = 0; i < map_data.length; i++){
+            if(map_data[i].pib.average != -1){
+              map_data[i].pib.average = get_average_pib(first_years, last_years, map_data[i].pib);
+              update_extremum_pib(map_data[i].pib.average);
             }
           }
         }
 
-        function calculate_average_pib_between_years(first_years, last_years, one_country_pib){
+        function get_average_pib(first_years, last_years, one_country_pib){
           var nb_annee = last_years-first_years+1;
           var somme = 0;
           for(var j = first_years; j <= last_years; j++){
@@ -352,7 +382,7 @@
 
 
         // Utility functions
-        function abbridgedNumber(n){
+        function round_numbers(n){
           // Round number n to 2 decimals
           // If n > 1,000,000,000, return "1 Md"
           // Same for 1,000,000 and 1,000.
@@ -376,6 +406,13 @@
         }
 
 
+        function display_help(){
+          var message = `Start: nothing.
+Click on country: color show the importance of *inflow* in the country.
+Click on PIB: obvious.
+Click on ratio: show migration ratio (arrival/departures).`;
+          alert(message)
+        }
 
   </script>
 
