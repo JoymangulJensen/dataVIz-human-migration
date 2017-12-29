@@ -75,6 +75,16 @@
         text-align: center !important;
       }
 
+      .arcs path {
+        opacity: .5;
+        stroke: red;
+        pointer-events: none;
+        fill: none;
+      }
+      .arcs .great-arc-end{
+        fill: red;
+      }
+
     </style>
 
 
@@ -118,6 +128,7 @@
               <h1 class="pull pull-right">
                 Legend
               </h1>
+              <div id="legend"></div>
             </div>
           <div class="col-md-10">
             <div class="pull pull-right" id="world_map_graph_d3"></div>
@@ -165,7 +176,6 @@
         // Shades of light green to saturated green.
         var shades_green = ["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"]
 
-
         var color = d3.scaleQuantize()
           .range(shades_green);
 
@@ -188,12 +198,11 @@
 
         var projection = d3.geoMercator()
           .scale(width / 2 / Math.PI)
-          //.scale(100)
+          .scale(140)
           .translate([width / 2, height / 2]);
 
         var path = d3.geoPath() // d3.geo.path avec d3 version 3
-                     .projection(projection);
-
+          .projection(projection);
 
         var slider_width = width - 70,
             x_slider = d3.scaleLinear()
@@ -274,8 +283,8 @@
           setHandle2(max_selected_year);
         }
 
-
-
+        var arcs = svg.append("g")
+			    .attr("class","arcs");
 
         d3.csv("data/pib_by_country.csv", function(data){
           pib_data = data;
@@ -324,7 +333,6 @@
                     tooltip.classed('hidden', true);
                 })
                 .on('click', function(country){ // Click on a country to see migration.
-                  console.log(country);
                   country_selected = country;
                   displaySelected()
                 });
@@ -334,7 +342,7 @@
         function display(){
           if(pib_selected){
             displayPib();
-          }else{
+          }else if(migrant_selected){
             displayRatio();
           }
         }
@@ -384,8 +392,84 @@
         function displaySelected(){
           if(pib_selected){
             displaySelectedPib();
-          }else{
+          }else if(migrant_selected){
             displaySelectedMigration();
+          }
+          displayArcs();
+        }
+
+        function displayArcs(){
+          // We need to creat the arcdata
+          var sourceLocation = path.centroid(country_selected);
+          
+          arcdata = new Array();
+          for (var i = 0; i < map_data.length; i++){
+            if(country_selected.migration.departure.sommes[''+map_data[i].id]){
+              var arc = {};
+              arc.sourceLocation = sourceLocation;
+              arc.targetLocation = path.centroid(map_data[i]);
+              arc.type = "outflow";
+              arc.size = 1;
+              arcdata.push(arc);
+            }
+
+            if(country_selected.migration.arrive.sommes[''+map_data[i].id]){
+              var arc = {};
+              arc.sourceLocation = path.centroid(map_data[i]);
+              arc.targetLocation = sourceLocation;
+              arc.type = "inflow";
+              arc.size = 2;
+              arcdata.push(arc);
+            }
+            
+          }
+
+          arcs.selectAll("path")
+            .data(arcdata)
+            .enter()
+            .append("path")
+            .style("stroke-width", function(d) { 
+              
+              return d.size;
+            })
+            .style("stroke", function(d) { 
+              if(d.type=="inflow")
+                return "green";
+              else
+                return 'red';
+            })
+            .attr('d', function(d) { 
+              return lngLatToArc(d);
+            });
+        }
+
+        function lngLatToArc(d){
+          if(d['targetLocation']==[838.9774563521044, 362.52508353968733]){
+            console.log("je passe par la");
+          }
+          // If no bend is supplied, then do the plain square root
+          bend = 1.2;
+          // `d[sourceName]` and `d[targetname]` are arrays of `[lng, lat]`
+          // Note, people often put these in lat then lng, but mathematically we want x then y which is `lng,lat`
+          var sourceLngLat = d['sourceLocation'],
+              targetLngLat = d['targetLocation'];
+          if (targetLngLat && sourceLngLat) {
+            var sourceXY = sourceLngLat//projection( sourceLngLat ),
+                targetXY = targetLngLat//projection( targetLngLat );
+            // Uncomment this for testing, useful to see if you have any null lng/lat values
+            // if (!targetXY) console.log(d, targetLngLat, targetXY)
+            var sourceX = sourceXY[0],
+                sourceY = sourceXY[1];
+            var targetX = targetXY[0],
+                targetY = targetXY[1];
+            var dx = targetX - sourceX,
+                dy = targetY - sourceY,
+                dr = Math.sqrt(dx * dx + dy * dy)*bend;
+            // To avoid a whirlpool effect, make the bend direction consistent regardless of whether the source is east or west of the target
+            //var west_of_source = (targetX - sourceX) < 0;
+            
+
+            return "M" + targetX + "," + targetY + "A" + dr + "," + dr + " 0 0,1 " + sourceX + "," + sourceY; 
           }
         }
 
@@ -619,7 +703,6 @@
           }
         }
 
-
         function roundNumber(n){
           // Round number n to 2 decimals
           // If n > 1,000,000,000, return "1 Md"
@@ -651,6 +734,8 @@
                         "Click on ratio: show migration ratio (arrival/departures). \n TO BE UPDATED";
           alert(message);
         }
+
+        
 
   </script>
 
