@@ -149,7 +149,7 @@
    
     <script>
         var width = 960,// 960,
-            height = 580; //580;
+            height = 600; //580;
           
         var MIN_YEAR = 2000,
             MAX_YEAR = 2015,
@@ -197,8 +197,7 @@
           .attr('class', 'hidden tooltip');
 
         var projection = d3.geoMercator()
-          .scale(width / 2 / Math.PI)
-          .scale(140)
+          .scale(width / 2 / Math.PI - 10)
           .translate([width / 2, height / 2]);
 
         var path = d3.geoPath() // d3.geo.path avec d3 version 3
@@ -399,7 +398,9 @@
         }
 
         function displayArcs(){
-          // We need to creat the arcdata
+          arcs.remove();
+          arcs = svg.append("g")
+			    .attr("class","arcs");
           var sourceLocation = path.centroid(country_selected);
           
           arcdata = new Array();
@@ -441,6 +442,7 @@
             .attr('d', function(d) { 
               return lngLatToArc(d);
             });
+            
         }
 
         function lngLatToArc(d){
@@ -530,6 +532,7 @@
           feedSelectedAveragePib();
           country_selected = null;
           country_draw.style("fill", "#ccc");
+          arcs.remove();
         }
 
 
