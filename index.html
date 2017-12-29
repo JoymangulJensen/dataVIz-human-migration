@@ -196,6 +196,9 @@
         var tooltip = d3.select('body').append('div')
           .attr('class', 'hidden tooltip');
 
+        var tooltip_arrow = d3.select('body').append('div')
+          .attr('class', 'hidden tooltip');
+
         var projection = d3.geoMercator()
           .scale(width / 2 / Math.PI - 10)
           .translate([width / 2, height / 2]);
@@ -313,7 +316,7 @@
 
                   tooltip
                     .classed('hidden', false)
-                    .attr('style', 'left:' + (mouse[0]+195) + 'px; top:' + (mouse[1]+10) + 'px')
+                    .attr('style', 'left:' + (mouse[0]+650) + 'px; top:' + (mouse[1]+0) + 'px')
                     .html(function(){
                       if (country.properties.name){
                         return country.properties.name + 
@@ -410,7 +413,7 @@
               arc.sourceLocation = sourceLocation;
               arc.targetLocation = path.centroid(map_data[i]);
               arc.type = "outflow";
-              arc.size = 1;
+              arc.size = Math.sqrt(country_selected.migration.arrive.sommes[''+map_data[i].id])/50;
               arcdata.push(arc);
             }
 
@@ -419,7 +422,7 @@
               arc.sourceLocation = path.centroid(map_data[i]);
               arc.targetLocation = sourceLocation;
               arc.type = "inflow";
-              arc.size = 2;
+              arc.size = Math.sqrt(country_selected.migration.arrive.sommes[''+map_data[i].id])/50;
               arcdata.push(arc);
             }
             
@@ -439,6 +442,7 @@
               else
                 return 'red';
             })
+            
             .attr('d', function(d) { 
               return lngLatToArc(d);
             });
@@ -446,9 +450,6 @@
         }
 
         function lngLatToArc(d){
-          if(d['targetLocation']==[838.9774563521044, 362.52508353968733]){
-            console.log("je passe par la");
-          }
           // If no bend is supplied, then do the plain square root
           bend = 1.2;
           // `d[sourceName]` and `d[targetname]` are arrays of `[lng, lat]`
