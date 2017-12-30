@@ -79,14 +79,10 @@
 
         .arcs path {
             opacity: .5;
-            stroke: red;
             pointer-events: none;
             fill: none;
         }
 
-        .arcs .great-arc-end {
-            fill: red;
-        }
     </style>
 
 
@@ -194,8 +190,11 @@
 
         var svg_legend = d3.select("#legend_d3")
             .append("svg")
-            .attr("width", 100)
+            .attr("width", 150)
             .attr("height", height);
+
+        var rectangles_legende = new Array();
+        var arrow_legende = new Array();
 
         var map = svg.append('g')
             .attr("class", "map")
@@ -356,17 +355,17 @@
                     });
             });
         });
-
-        displayLegend();
+        
+        firstDisplayLegendColoration();
+        //firstDisplayLegendArrow();
 
         function display() {
-            displayLegend();
             if (pib_selected) {
-
                 displayPib();
             } else if (migrant_selected) {
                 displayRatio();
             }
+            modifyLegendColoration();
         }
 
         function displayPib() {
@@ -388,6 +387,7 @@
                     }
                 });
             }
+            modifyLegendColoration();
         }
 
         function displayRatio() {
@@ -397,7 +397,7 @@
                 displaySelectedMigration();
             } else {
                 color = d3.scaleQuantize()
-                    .range(shades_blue)
+                    .range(shades_green)
                     .domain([lowest_ratio * 0.5, highest_ratio / 25]);
 
                 country_draw.style("fill", function(d) {
@@ -409,6 +409,7 @@
                     }
                 })
             }
+            modifyLegendColoration();
         }
 
         function displaySelected() {
@@ -418,6 +419,7 @@
                 displaySelectedMigration();
             }
             displayArcs();
+            firstDisplayLegendArrow();
         }
 
         function displayArcs() {
@@ -523,7 +525,7 @@
                 highest_migration_flow = d3.max(d3.values(country_selected.migration.arrive.sommes));
 
             color = d3.scaleQuantize()
-                .range(shades_blue)
+                .range(shades_green)
                 .domain([lowest_migration_flow, highest_migration_flow]);
 
             country_draw.style("fill", function(d) {
@@ -556,9 +558,12 @@
             setRange(MIN_YEAR, MAX_YEAR);
             feedSelectedMigrationData();
             feedSelectedAveragePib();
+            migrant_selected = false;
+            pib_selected = false;
             country_selected = null;
             country_draw.style("fill", "#ccc");
             arcs.remove();
+            clearLegend();
         }
 
 
@@ -761,23 +766,123 @@
             alert(message);
         }
 
-        function displayLegend() {
-            for (var i = 0; i < shades_blue.length; i += 2) {
+        function firstDisplayLegendColoration() {
+            var text = svg_legend.append("text")
+                .attr("x", 0)
+                .attr("y", 20)
+                .attr("font-size", "20px")
+                .attr("fill", "black")
+                .text("Coloration");
+            rectangles_legende.push(text);
+            for (var i = 0; i < shades_blue.length; i ++) {
                 var rectangle = svg_legend.append("rect")
-                    .attr("x", 10)
-                    .attr("y", 30 * (i / 2) + 10)
-                    .attr("width", 40)
-                    .attr("height", 25)
-                    .style("fill", shades_blue[i]);
+                    .attr("x", 0)
+                    .attr("y", 20 * (i) + 30)
+                    .attr("width", 60)
+                    .attr("height", 20)
+                    .style("fill", "#ccc");
+                rectangles_legende.push(rectangle);
             }
+        }
 
-            var circle = svg_legend.append("line")
-                .attr("x1", 100)
-                .attr("y1", 5)
-                .attr("x2", 100)
-                .attr("y2", 50)
-                .attr("stroke-width", 20)
-                .attr("stroke", "black");
+        function firstDisplayLegendArrow(){
+
+          var text = svg_legend.append("text")
+                .attr("x", 0)
+                .attr("y", 20*shades_blue.length+50)
+                .attr("font-size", "20px")
+                .attr("fill", "red")
+                .text("Outflow");
+          arrow_legende.push(text);
+
+          for(var i=0; i < 3; i++){
+            if(i == 0) var val = 500;
+            if(i == 1) var val = 10000;
+            if(i == 2) var val = 500000;
+            var arrow = svg_legend.append("line")
+                .attr("x1", 0)
+                .attr("y1", 20*shades_blue.length+60+i*20)
+                .attr("x2", 90)
+                .attr("y2", 20*shades_blue.length+60+i*20)
+                .attr("stroke-width", Math.sqrt(val)/50)
+                .attr("stroke", "red")
+                .style('opacity', '0.5');
+            var text = svg_legend.append("text")
+              .attr("x", 100)
+              .attr("y", 20*shades_blue.length+60+i*23)
+              .attr("font-size", "15px")
+              .attr("fill", "black")
+              .text(""+val);
+            arrow_legende.push(arrow);
+            arrow_legende.push(text);
+          }
+            
+
+          var text = svg_legend.append("text")
+              .attr("x", 0)
+              .attr("y", 20*shades_blue.length+140)
+              .attr("font-size", "20px")
+              .attr("fill", "black")
+              .text("Inflow");
+          arrow_legende.push(text);
+
+          for(var i=0; i < 3; i++){
+            if(i == 0) var val = 500;
+            if(i == 1) var val = 10000;
+            if(i == 2) var val = 500000;
+            var arrow = svg_legend.append("line")
+                .attr("x1", 0)
+                .attr("y1", 20*shades_blue.length+150+i*20)
+                .attr("x2", 90)
+                .attr("y2", 20*shades_blue.length+150+i*20)
+                .attr("stroke-width", Math.sqrt(val)/50)
+                .attr("stroke", "green")
+                .style('opacity', '0.5');
+            var text = svg_legend.append("text")
+              .attr("x", 100)
+              .attr("y", 20*shades_blue.length+150+i*23)
+              .attr("font-size", "15px")
+              .attr("fill", "black")
+              .text(""+val);
+            arrow_legende.push(arrow);
+            arrow_legende.push(text);
+          }
+        }
+
+        function modifyLegendColoration(){
+          for (var i = 1; i < rectangles_legende.length; i++) {
+            rectangles_legende[i].style("fill", function(){
+                      if(pib_selected){
+                        console.log("le premier"+shades_blue[i]);
+                        return shades_blue[i];
+                      }else if(migrant_selected){
+                        console.log("le premier"+shades_green[i]);
+                        return shades_green[i];
+                      }else {
+                        console.log("petit probleme en vue");
+                        return "#ccc";
+                      }
+                    });
+          }
+        }
+
+        function clearLegendColoration(){
+          for(var i = 0; i < rectangles_legende.length; i++){
+            rectangles_legende[i].remove();
+          }
+          rectangles_legende = new Array();
+          firstDisplayLegendColoration();
+        }
+
+        function clearLegendArrow(){
+          for(var i = 0; i < arrow_legende.length; i++){
+            arrow_legende[i].remove();
+          }
+        }
+
+        function clearLegend(){
+          clearLegendArrow();
+          clearLegendColoration();
         }
     </script>
 
