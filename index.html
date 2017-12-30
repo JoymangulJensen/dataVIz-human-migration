@@ -82,7 +82,6 @@
             pointer-events: none;
             fill: none;
         }
-
     </style>
 
 
@@ -355,7 +354,7 @@
                     });
             });
         });
-        
+
         firstDisplayLegendColoration();
         //firstDisplayLegendArrow();
 
@@ -774,7 +773,7 @@
                 .attr("fill", "black")
                 .text("Coloration");
             rectangles_legende.push(text);
-            for (var i = 0; i < shades_blue.length; i ++) {
+            for (var i = 0; i < shades_blue.length; i++) {
                 var rectangle = svg_legend.append("rect")
                     .attr("x", 0)
                     .attr("y", 20 * (i) + 30)
@@ -785,104 +784,101 @@
             }
         }
 
-        function firstDisplayLegendArrow(){
+        function firstDisplayLegendArrow() {
 
-          var text = svg_legend.append("text")
+            var text = svg_legend.append("text")
                 .attr("x", 0)
-                .attr("y", 20*shades_blue.length+50)
+                .attr("y", 20 * shades_blue.length + 50)
                 .attr("font-size", "20px")
                 .attr("fill", "red")
                 .text("Outflow");
-          arrow_legende.push(text);
-
-          for(var i=0; i < 3; i++){
-            if(i == 0) var val = 500;
-            if(i == 1) var val = 10000;
-            if(i == 2) var val = 500000;
-            var arrow = svg_legend.append("line")
-                .attr("x1", 0)
-                .attr("y1", 20*shades_blue.length+60+i*20)
-                .attr("x2", 90)
-                .attr("y2", 20*shades_blue.length+60+i*20)
-                .attr("stroke-width", Math.sqrt(val)/50)
-                .attr("stroke", "red")
-                .style('opacity', '0.5');
-            var text = svg_legend.append("text")
-              .attr("x", 100)
-              .attr("y", 20*shades_blue.length+60+i*23)
-              .attr("font-size", "15px")
-              .attr("fill", "black")
-              .text(""+val);
-            arrow_legende.push(arrow);
             arrow_legende.push(text);
-          }
-            
 
-          var text = svg_legend.append("text")
-              .attr("x", 0)
-              .attr("y", 20*shades_blue.length+140)
-              .attr("font-size", "20px")
-              .attr("fill", "black")
-              .text("Inflow");
-          arrow_legende.push(text);
+            for (var i = 0; i < 3; i++) {
+                if (i == 0) var val = 500;
+                if (i == 1) var val = 10000;
+                if (i == 2) var val = 500000;
+                var arrow = svg_legend.append("line")
+                    .attr("x1", 0)
+                    .attr("y1", 20 * shades_blue.length + 60 + i * 20)
+                    .attr("x2", 90)
+                    .attr("y2", 20 * shades_blue.length + 60 + i * 20)
+                    .attr("stroke-width", Math.sqrt(val) / 50)
+                    .attr("stroke", "red")
+                    .style('opacity', '0.5');
+                var text = svg_legend.append("text")
+                    .attr("x", 100)
+                    .attr("y", 20 * shades_blue.length + 60 + i * 23)
+                    .attr("font-size", "15px")
+                    .attr("fill", "black")
+                    .text("" + val);
+                arrow_legende.push(arrow);
+                arrow_legende.push(text);
+            }
 
-          for(var i=0; i < 3; i++){
-            if(i == 0) var val = 500;
-            if(i == 1) var val = 10000;
-            if(i == 2) var val = 500000;
-            var arrow = svg_legend.append("line")
-                .attr("x1", 0)
-                .attr("y1", 20*shades_blue.length+150+i*20)
-                .attr("x2", 90)
-                .attr("y2", 20*shades_blue.length+150+i*20)
-                .attr("stroke-width", Math.sqrt(val)/50)
-                .attr("stroke", "green")
-                .style('opacity', '0.5');
+
             var text = svg_legend.append("text")
-              .attr("x", 100)
-              .attr("y", 20*shades_blue.length+150+i*23)
-              .attr("font-size", "15px")
-              .attr("fill", "black")
-              .text(""+val);
-            arrow_legende.push(arrow);
+                .attr("x", 0)
+                .attr("y", 20 * shades_blue.length + 140)
+                .attr("font-size", "20px")
+                .attr("fill", "black")
+                .text("Inflow");
             arrow_legende.push(text);
-          }
+
+            for (var i = 0; i < 3; i++) {
+                if (i == 0) var val = 500;
+                if (i == 1) var val = 10000;
+                if (i == 2) var val = 500000;
+                var arrow = svg_legend.append("line")
+                    .attr("x1", 0)
+                    .attr("y1", 20 * shades_blue.length + 150 + i * 20)
+                    .attr("x2", 90)
+                    .attr("y2", 20 * shades_blue.length + 150 + i * 20)
+                    .attr("stroke-width", Math.sqrt(val) / 50)
+                    .attr("stroke", "green")
+                    .style('opacity', '0.5');
+                var text = svg_legend.append("text")
+                    .attr("x", 100)
+                    .attr("y", 20 * shades_blue.length + 150 + i * 23)
+                    .attr("font-size", "15px")
+                    .attr("fill", "black")
+                    .text("" + val);
+                arrow_legende.push(arrow);
+                arrow_legende.push(text);
+            }
         }
 
-        function modifyLegendColoration(){
-          for (var i = 1; i < rectangles_legende.length; i++) {
-            rectangles_legende[i].style("fill", function(){
-                      if(pib_selected){
-                        console.log("le premier"+shades_blue[i]);
+        function modifyLegendColoration() {
+            for (var i = 1; i < rectangles_legende.length; i++) {
+                rectangles_legende[i].style("fill", function() {
+                    if (pib_selected) {
                         return shades_blue[i];
-                      }else if(migrant_selected){
-                        console.log("le premier"+shades_green[i]);
+                    } else if (migrant_selected) {
                         return shades_green[i];
-                      }else {
-                        console.log("petit probleme en vue");
+                    } else {
                         return "#ccc";
-                      }
-                    });
-          }
+                    }
+                });
+            }
         }
 
-        function clearLegendColoration(){
-          for(var i = 0; i < rectangles_legende.length; i++){
-            rectangles_legende[i].remove();
-          }
-          rectangles_legende = new Array();
-          firstDisplayLegendColoration();
+        function clearLegendColoration() {
+            for (var i = 0; i < rectangles_legende.length; i++) {
+                rectangles_legende[i].remove();
+            }
+            rectangles_legende = new Array();
+            firstDisplayLegendColoration();
         }
 
-        function clearLegendArrow(){
-          for(var i = 0; i < arrow_legende.length; i++){
-            arrow_legende[i].remove();
-          }
+        function clearLegendArrow() {
+            for (var i = 0; i < arrow_legende.length; i++) {
+                arrow_legende[i].remove();
+            }
         }
 
-        function clearLegend(){
-          clearLegendArrow();
-          clearLegendColoration();
+        function clearLegend() {
+            clearLegendArrow();
+            clearLegendColoration();
         }
     </script>
 
