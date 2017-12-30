@@ -1,7 +1,7 @@
-
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -18,144 +18,147 @@
     <!-- Script for d3 js -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
 
+
     <!-- Tooltip style -->
     <style>
-    .hidden {
-        display: none;
-    }
-    div.tooltip {
-        color: #222;
-        background-color: #fff;
-        padding: .5em;
-        text-shadow: #f5f5f5 0 1px 0;
-        border-radius: 2px;
-        opacity: 0.9;
-        position: absolute;
-       }
+        .hidden {
+            display: none;
+        }
+
+        div.tooltip {
+            color: #222;
+            background-color: #fff;
+            padding: .5em;
+            text-shadow: #f5f5f5 0 1px 0;
+            border-radius: 2px;
+            opacity: 0.9;
+            position: absolute;
+        }
     </style>
 
     <!-- Double slider style -->
     <style>
-      .ticks {
-        font: 10px sans-serif;
-      }
-      
-      .track,
-      .track-inset,
-      .track-overlay {
-        stroke-linecap: round;
-      }
-      
-      .track {
-        stroke: #000;
-        stroke-opacity: 0.3;
-        stroke-width: 10px;
-      }
-      
-      .track-inset {
-        stroke: #ddd;
-        stroke-width: 8px;
-      }
-      
-      .track-overlay {
-        pointer-events: stroke;
-        stroke-width: 50px;
-        stroke: transparent;
-        cursor: crosshair;
-      }
+        .ticks {
+            font: 10px sans-serif;
+        }
 
-      .handle {
-        fill: #fff;
-        stroke: #000;
-        stroke-opacity: 0.5;
-        stroke-width: 1.25px;
-      }   
+        .track,
+        .track-inset,
+        .track-overlay {
+            stroke-linecap: round;
+        }
 
-      h1{
-        text-align: center !important;
-      }
+        .track {
+            stroke: #000;
+            stroke-opacity: 0.3;
+            stroke-width: 10px;
+        }
 
-      .arcs path {
-        opacity: .5;
-        stroke: red;
-        pointer-events: none;
-        fill: none;
-      }
-      .arcs .great-arc-end{
-        fill: red;
-      }
+        .track-inset {
+            stroke: #ddd;
+            stroke-width: 8px;
+        }
 
+        .track-overlay {
+            pointer-events: stroke;
+            stroke-width: 50px;
+            stroke: transparent;
+            cursor: crosshair;
+        }
+
+        .handle {
+            fill: #fff;
+            stroke: #000;
+            stroke-opacity: 0.5;
+            stroke-width: 1.25px;
+        }
+
+        h1 {
+            text-align: center !important;
+        }
+
+        .arcs path {
+            opacity: .5;
+            stroke: red;
+            pointer-events: none;
+            fill: none;
+        }
+
+        .arcs .great-arc-end {
+            fill: red;
+        }
     </style>
 
 
-  </head>
+</head>
 
-  <body>
+<body>
 
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        
-      <a class="navbar-brand" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
-      <a onclick="displayHelp()" class="navbar-brand"  href="#">Help</a>
-      <a onclick="reset()" class="navbar-brand" href="#">Reset</a>
-      <!--<a onclick="displayRatio()" class="navbar-brand selected" href="#">Migrant-ratio</a>-->
-      <!--<a onclick="displayPib()" class="navbar-brand" href="#">GDP</a>-->
-      
+
+        <a class="navbar-brand" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
+        <a onclick="displayHelp()" class="navbar-brand" href="#">Help</a>
+        <a onclick="reset()" class="navbar-brand" href="#">Reset</a>
+        <!--<a onclick="displayRatio()" class="navbar-brand selected" href="#">Migrant-ratio</a>-->
+        <!--<a onclick="displayPib()" class="navbar-brand" href="#">GDP</a>-->
+
     </nav>
     <br/><br/><br/>
     <main role="main">
 
-      <div class="container">
-        <!-- Example row of columns -->
-        <div class="row">
-          <div class="col-md-10">
-            <h1 id="title">World map !</h1>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-10">
-            <div id="slider_d3"></div>
-          </div>
-          <div class="col-md-2">
-            <select>
+        <div class="container">
+            <!-- Example row of columns -->
+            <div class="row">
+                <div class="col-md-10">
+                    <h1 id="title">World map !</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-10">
+                    <div id="slider_d3"></div>
+                </div>
+                <div class="col-md-2">
+                    <select>
                 <option>Select a coloration</option>
                 <option onclick="displayPib()">GDP</option>
                 <option onclick="displayRatio()">Migrant-ratio</option>
             </select>
-          </div>
-        </div>
-        <div class="row">
-            <div class="col-md-2">
-              <h1 class="pull pull-right">
-                Legend
-              </h1>
-              <div id="legend"></div>
+                </div>
             </div>
-          <div class="col-md-10">
-            <div class="pull pull-right" id="world_map_graph_d3"></div>
-          </div>
-          
+            <div class="row">
+                <div class="col-md-2">
+                    <h1 class="pull pull-right">
+                        Legend
+                    </h1>
+                    <div id="legend_d3"></div>
+                </div>
+                <div class="col-md-10">
+                    <div class="pull pull-right" id="world_map_graph_d3"></div>
+                </div>
+
+            </div>
+
+            <hr>
+
         </div>
-
-        <hr>
-
-      </div> <!-- /container -->
+        <!-- /container -->
 
     </main>
 
     <footer class="container">
-      <p align="center">&copy; Master 2 Data Science 2017</p>
+        <p align="center">&copy; Master 2 Data Science 2017</p>
     </footer>
 
-   
+
     <script>
-        var width = 960,// 960,
+        var width = 960, // 960,
             height = 600; //580;
-          
+
         var MIN_YEAR = 2000,
             MAX_YEAR = 2015,
             min_selected_year = 2000,
             max_selected_year = 2015;
-        
+
         var lowest_pib,
             highest_pib,
             lowest_ratio,
@@ -167,7 +170,7 @@
             country_draw;
 
         var country_selected;
-        
+
         var pib_selected = false,
             migrant_selected = false;
 
@@ -177,41 +180,46 @@
         var shades_green = ["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"]
 
         var color = d3.scaleQuantize()
-          .range(shades_green);
+            .range(shades_green);
 
-        var svg = d3.select( "#world_map_graph_d3" )
-          .append( "svg" )
-          .attr( "width", width )
-          .attr( "height", height );
+        var svg = d3.select("#world_map_graph_d3")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
 
-        var svg_slider = d3.select( "#slider_d3" )
-          .append( "svg" )
-          .attr( "width", width )
-          .attr( "height", 50 );
+        var svg_slider = d3.select("#slider_d3")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", 50);
+
+        var svg_legend = d3.select("#legend_d3")
+            .append("svg")
+            .attr("width", 100)
+            .attr("height", height);
 
         var map = svg.append('g')
-          .attr("class", "map")
-          .attr('transform', 'translate(0, 00)')
+            .attr("class", "map")
+            .attr('transform', 'translate(0, 00)')
 
         var tooltip = d3.select('body').append('div')
-          .attr('class', 'hidden tooltip');
+            .attr('class', 'hidden tooltip');
 
         var tooltip_arrow = d3.select('body').append('div')
-          .attr('class', 'hidden tooltip');
+            .attr('class', 'hidden tooltip');
 
         var projection = d3.geoMercator()
-          .scale(width / 2 / Math.PI - 10)
-          .translate([width / 2, height / 2]);
+            .scale(width / 2 / Math.PI - 10)
+            .translate([width / 2, height / 2]);
 
         var path = d3.geoPath() // d3.geo.path avec d3 version 3
-          .projection(projection);
+            .projection(projection);
 
         var slider_width = width - 70,
             x_slider = d3.scaleLinear()
-              .domain([MIN_YEAR, MAX_YEAR])
-              .range([0, slider_width])
-              .clamp(true);
-        
+            .domain([MIN_YEAR, MAX_YEAR])
+            .range([0, slider_width])
+            .clamp(true);
+
         var double_slider = svg_slider.append("g")
             .attr("class", "slider")
             .attr("transform", "translate(" + 30 + "," + 15 + ")");
@@ -220,373 +228,390 @@
             .attr("class", "track")
             .attr("x1", x_slider.range()[0])
             .attr("x2", x_slider.range()[1])
-          .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+            .select(function() {
+                return this.parentNode.appendChild(this.cloneNode(true));
+            })
             .attr("class", "track-inset")
-          .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+            .select(function() {
+                return this.parentNode.appendChild(this.cloneNode(true));
+            })
             .attr("class", "track-overlay")
             .call(d3.drag()
-                .on("start.interrupt", function() { double_slider.interrupt(); })
-                .on("start drag", function() { 
+                .on("start.interrupt", function() {
+                    double_slider.interrupt();
+                })
+                .on("start drag", function() {
                     var distance1 = Math.abs(x_slider.invert(handle1.attr("cx")) - x_slider.invert(d3.event.x))
                     var distance2 = Math.abs(x_slider.invert(handle2.attr("cx")) - x_slider.invert(d3.event.x))
                     if (distance1 < distance2) {
-                      setHandle1(x_slider.invert(d3.event.x));
+                        setHandle1(x_slider.invert(d3.event.x));
                     } else {
-                      setHandle2(x_slider.invert(d3.event.x)); 
+                        setHandle2(x_slider.invert(d3.event.x));
                     }
-                  }));
+                }));
 
         double_slider.insert("g", ".track-overlay")
             .attr("class", "ticks")
             .attr("transform", "translate(0," + 18 + ")")
-          .selectAll("text")
-          .data(x_slider.ticks(10))
-          .enter().append("text")
+            .selectAll("text")
+            .data(x_slider.ticks(10))
+            .enter().append("text")
             .attr("x", x_slider)
             .attr("text-anchor", "middle")
-            .text(function(d) { return d; });
+            .text(function(d) {
+                return d;
+            });
 
         var handle1 = double_slider.insert("circle", ".track-overlay")
             .attr("class", "handle")
-            .attr("cx",0)
+            .attr("cx", 0)
             .attr("r", 9)
 
         var handle2 = double_slider.insert("circle", ".track-overlay")
             .attr("class", "handle")
-            .attr("cx",0)
+            .attr("cx", 0)
             .attr("r", 9);
 
         function setHandle1(h) {
-          handle1.attr("cx", x_slider(Math.round(h)));
-          var year = Math.round(h);
-          if(min_selected_year != year){
-            min_selected_year = year;
-            updateDate();
-          }
+            handle1.attr("cx", x_slider(Math.round(h)));
+            var year = Math.round(h);
+            if (min_selected_year != year) {
+                min_selected_year = year;
+                updateDate();
+            }
         }
 
         function setHandle2(h) {
-          handle2.attr("cx", x_slider(Math.round(h)));
-          var year = Math.round(h);
-          if(max_selected_year != year){
-            max_selected_year = year;
-            updateDate();
-          }
-        }
-        
-        function getRange() {
-          var valA = x_slider.invert(handle1.attr("cx"));
-          var valB = x_slider.invert(handle2.attr("cx"));
-          return [valA,valB];
+            handle2.attr("cx", x_slider(Math.round(h)));
+            var year = Math.round(h);
+            if (max_selected_year != year) {
+                max_selected_year = year;
+                updateDate();
+            }
         }
 
-        function setRange(min_selected_year, max_selected_year){
-          setHandle1(min_selected_year);
-          setHandle2(max_selected_year);
+        function getRange() {
+            var valA = x_slider.invert(handle1.attr("cx"));
+            var valB = x_slider.invert(handle2.attr("cx"));
+            return [valA, valB];
+        }
+
+        function setRange(min_selected_year, max_selected_year) {
+            setHandle1(min_selected_year);
+            setHandle2(max_selected_year);
         }
 
         var arcs = svg.append("g")
-			    .attr("class","arcs");
+            .attr("class", "arcs");
 
-        d3.csv("data/pib_by_country.csv", function(data){
-          pib_data = data;
+        d3.csv("data/pib_by_country.csv", function(data) {
+            pib_data = data;
         });
-        
+
         d3.json("data/world.json", function(json) {
-          d3.csv("data/migration_2000_2015.csv", function(data){
-            migration_data = data;
-            map_data = json.features; // list of all countries : {id: "AFG", migration: {…}, pib: {..}}
-            
+            d3.csv("data/migration_2000_2015.csv", function(data) {
+                migration_data = data;
+                map_data = json.features; // list of all countries : {id: "AFG", migration: {…}, pib: {..}}
+
+                // Init.
+                feedPibData();
+                feedMigrationData();
+                setRange(MIN_YEAR, MAX_YEAR);
+                feedSelectedMigrationData();
+                feedSelectedAveragePib();
+
+                country_draw = map.selectAll("path")
+                    .data(map_data).enter()
+                    .append("path")
+                    .attr("d", path)
+                    .style("fill", "#ccc") // At the start, display nothing (for the moment)
+                    .on('mousemove', function(country) {
+                        var mouse = d3.mouse(map.node()).map(function(country) {
+                            return parseInt(country);
+                        });
+
+                        tooltip
+                            .classed('hidden', false)
+                            .attr('style', 'left:' + (mouse[0] + 650) + 'px; top:' + (mouse[1] + 0) + 'px')
+                            .html(function() {
+                                if (country.properties.name) {
+                                    return country.properties.name +
+                                        "<br> Selected years: " + country.migration.min_selected_year + "-" + country.migration.max_selected_year +
+                                        "<br> GDP: " + roundNumber(country.pib.average) +
+                                        "<br> Inflow: " + roundNumber(country.migration.departure.somme) +
+                                        "<br> Outlow: " + roundNumber(country.migration.arrive.somme) +
+                                        "<br> Ratio: " + roundNumber(country.migration.ratio);
+                                } else {
+                                    return "Unknown country.<br>Look at the console (F12)";
+                                }
+                            })
+
+                    })
+                    .on('mouseout', function() {
+                        tooltip.classed('hidden', true);
+                    })
+                    .on('click', function(country) { // Click on a country to see migration.
+                        country_selected = country;
+                        displaySelected();
+                    });
+            });
+        });
+
+        displayLegend();
+
+        function display() {
+            displayLegend();
+            if (pib_selected) {
+
+                displayPib();
+            } else if (migrant_selected) {
+                displayRatio();
+            }
+        }
+
+        function displayPib() {
+            migrant_selected = false;
+            pib_selected = true;
+            if (country_selected) {
+                displaySelectedPib();
+            } else {
+                color = d3.scaleQuantize()
+                    .range(shades_blue)
+                    .domain([lowest_pib * 0.125, highest_pib * 0.125]);
+
+                country_draw.style("fill", function(d) {
+                    var pib = d.pib.average;
+                    if (pib) {
+                        return color(pib);
+                    } else {
+                        return "#ccc"; // #ccc = "grey"
+                    }
+                });
+            }
+        }
+
+        function displayRatio() {
+            migrant_selected = true;
+            pib_selected = false;
+            if (country_selected) {
+                displaySelectedMigration();
+            } else {
+                color = d3.scaleQuantize()
+                    .range(shades_blue)
+                    .domain([lowest_ratio * 0.5, highest_ratio / 25]);
+
+                country_draw.style("fill", function(d) {
+                    var ratio = d.migration.ratio;
+                    if (ratio) {
+                        return color(ratio);
+                    } else {
+                        return "#ccc"; // #ccc = "grey"
+                    }
+                })
+            }
+        }
+
+        function displaySelected() {
+            if (pib_selected) {
+                displaySelectedPib();
+            } else if (migrant_selected) {
+                displaySelectedMigration();
+            }
+            displayArcs();
+        }
+
+        function displayArcs() {
+            arcs.remove();
+            arcs = svg.append("g")
+                .attr("class", "arcs");
+            var source = path.centroid(country_selected);
+
+            arcdata = new Array();
+            for (var i = 0; i < map_data.length; i++) {
+                if (country_selected.migration.departure.sommes['' + map_data[i].id]) {
+                    var arc = {};
+                    arc.source = source;
+                    arc.target = path.centroid(map_data[i]);
+                    arc.type = "outflow";
+                    arc.size = Math.sqrt(country_selected.migration.arrive.sommes['' + map_data[i].id]) / 50;
+                    arcdata.push(arc);
+                }
+
+                if (country_selected.migration.arrive.sommes['' + map_data[i].id]) {
+                    var arc = {};
+                    arc.source = path.centroid(map_data[i]);
+                    arc.target = source;
+                    arc.type = "inflow";
+                    arc.size = Math.sqrt(country_selected.migration.arrive.sommes['' + map_data[i].id]) / 50;
+                    arcdata.push(arc);
+                }
+
+            }
+
+            arcs.selectAll("path")
+                .data(arcdata)
+                .enter()
+                .append("path")
+                .style("stroke-width", function(d) {
+
+                    return d.size;
+                })
+                .style("stroke", function(d) {
+                    if (d.type == "inflow")
+                        return "green";
+                    else
+                        return 'red';
+                })
+                .attr('d', function(d) {
+                    bend = 1.2;
+                    var dx = d['target'][0] - d['source'][0],
+                        dy = d['target'][1] - d['source'][1],
+                        dr = Math.sqrt(dx * dx + dy * dy) * bend;
+                    return "M" + d['target'][0] + "," + d['target'][1] + "A" + dr + "," + dr + " 0 0,1 " + d['source'][0] + "," + d['source'][1];
+                });
+
+        }
+
+        function lngLatToArc(d) {
+            // If no bend is supplied, then do the plain square root
+            bend = 1.2;
+            // `d[sourceName]` and `d[targetname]` are arrays of `[lng, lat]`
+            // Note, people often put these in lat then lng, but mathematically we want x then y which is `lng,lat`
+            var sourceLngLat = d['source'],
+                targetLngLat = d['target'];
+            if (targetLngLat && sourceLngLat) {
+                var sourceXY = projection(sourceLngLat),
+                    targetXY = projection(targetLngLat);
+                // Uncomment this for testing, useful to see if you have any null lng/lat values
+                // if (!targetXY) console.log(d, targetLngLat, targetXY)
+                var sourceX = sourceXY[0],
+                    sourceY = sourceXY[1];
+                var targetX = targetXY[0],
+                    targetY = targetXY[1];
+                var dx = targetX - sourceX,
+                    dy = targetY - sourceY,
+                    dr = Math.sqrt(dx * dx + dy * dy) * bend;
+                // To avoid a whirlpool effect, make the bend direction consistent regardless of whether the source is east or west of the target
+                var west_of_source = (targetX - sourceX) < 0;
+                if (west_of_source) {
+                    return "M" + targetX + "," + targetY + "A" + dr + "," + dr + " 0 0,1 " + sourceX + "," + sourceY;
+                } else {
+                    return "M0,0,l0,0z";
+                }
+            }
+        }
+
+        function displaySelectedPib() {
+
+            color = d3.scaleQuantize()
+                .range(shades_blue)
+                .domain([lowest_pib * 0.125, highest_pib * 0.125]);
+
+            country_draw.style("fill", function(d) {
+                var pib = d.pib.average;
+                if (country_selected.migration.arrive.sommes[d.id]) {
+                    return color(pib);
+                } else {
+                    return "#ccc"; // #ccc = "grey"
+                }
+            });
+        }
+
+        function displaySelectedMigration() {
+
+            var lowest_migration_flow = d3.min(d3.values(country_selected.migration.arrive.sommes)),
+                highest_migration_flow = d3.max(d3.values(country_selected.migration.arrive.sommes));
+
+            color = d3.scaleQuantize()
+                .range(shades_blue)
+                .domain([lowest_migration_flow, highest_migration_flow]);
+
+            country_draw.style("fill", function(d) {
+                var migration_number = country_selected.migration.arrive.sommes[d.id];
+                if (migration_number) {
+                    return color(migration_number);
+                } else {
+                    return "#ccc";
+                }
+            });
+        }
+
+        function updateDate() {
+            feedPibData();
+            feedMigrationData();
+            feedSelectedMigrationData();
+            feedSelectedAveragePib();
+            if (country_selected) {
+                displaySelected();
+            } else if (migrant_selected || pib_selected) {
+                display();
+            }
+
+        }
+
+        function reset() {
             // Init.
             feedPibData();
             feedMigrationData();
             setRange(MIN_YEAR, MAX_YEAR);
             feedSelectedMigrationData();
             feedSelectedAveragePib();
-
-            country_draw = map.selectAll("path")
-                .data(map_data).enter()
-                .append("path")
-                .attr("d", path)
-                .style("fill", "#ccc") // At the start, display nothing (for the moment)
-                .on('mousemove', function(country) {
-                  var mouse = d3.mouse(map.node()).map(function(country) {
-                      return parseInt(country);
-                  });
-
-                  tooltip
-                    .classed('hidden', false)
-                    .attr('style', 'left:' + (mouse[0]+650) + 'px; top:' + (mouse[1]+0) + 'px')
-                    .html(function(){
-                      if (country.properties.name){
-                        return country.properties.name + 
-                          "<br> Selected years: " + country.migration.min_selected_year + "-" + country.migration.max_selected_year + 
-                          "<br> GDP: " + roundNumber(country.pib.average) + 
-                          "<br> Inflow: " + roundNumber(country.migration.departure.somme) + 
-                          "<br> Outlow: " + roundNumber(country.migration.arrive.somme) + 
-                          "<br> Ratio: " + roundNumber(country.migration.ratio);
-                      } else {
-                        return "Unknown country.<br>Look at the console (F12)";
-                      }
-                    })
-                  
-                })
-                .on('mouseout', function() {
-                    tooltip.classed('hidden', true);
-                })
-                .on('click', function(country){ // Click on a country to see migration.
-                  country_selected = country;
-                  displaySelected()
-                });
-          });
-        });
-
-        function display(){
-          if(pib_selected){
-            displayPib();
-          }else if(migrant_selected){
-            displayRatio();
-          }
-        }
-
-        function displayPib(){
-          migrant_selected = false;
-          pib_selected = true;
-          if(country_selected){
-            displaySelectedPib();
-          }else{
-            color = d3.scaleQuantize()
-                    .range(shades_blue)
-                    .domain([lowest_pib*0.125,highest_pib*0.125]);
-
-            country_draw.style("fill", function(d) {
-              var pib = d.pib.average;
-              if (pib) {
-                return color(pib);
-              } else {
-                return "#ccc"; // #ccc = "grey"
-              }
-            });
-          }
-        }
-
-        function displayRatio(){
-          migrant_selected = true;
-          pib_selected = false;
-          if(country_selected){
-            displaySelectedMigration();
-          }else{
-            color = d3.scaleQuantize()
-                    .range(shades_blue)
-                    .domain([lowest_ratio*0.5, highest_ratio/25]);
-
-            country_draw.style("fill", function(d) {
-              var ratio = d.migration.ratio;
-              if (ratio) {
-                return color(ratio);
-              } else {
-                return "#ccc"; // #ccc = "grey"
-              }
-            })
-          }
-        }
-
-        function displaySelected(){
-          if(pib_selected){
-            displaySelectedPib();
-          }else if(migrant_selected){
-            displaySelectedMigration();
-          }
-          displayArcs();
-        }
-
-        function displayArcs(){
-          arcs.remove();
-          arcs = svg.append("g")
-			    .attr("class","arcs");
-          var sourceLocation = path.centroid(country_selected);
-          
-          arcdata = new Array();
-          for (var i = 0; i < map_data.length; i++){
-            if(country_selected.migration.departure.sommes[''+map_data[i].id]){
-              var arc = {};
-              arc.sourceLocation = sourceLocation;
-              arc.targetLocation = path.centroid(map_data[i]);
-              arc.type = "outflow";
-              arc.size = Math.sqrt(country_selected.migration.arrive.sommes[''+map_data[i].id])/50;
-              arcdata.push(arc);
-            }
-
-            if(country_selected.migration.arrive.sommes[''+map_data[i].id]){
-              var arc = {};
-              arc.sourceLocation = path.centroid(map_data[i]);
-              arc.targetLocation = sourceLocation;
-              arc.type = "inflow";
-              arc.size = Math.sqrt(country_selected.migration.arrive.sommes[''+map_data[i].id])/50;
-              arcdata.push(arc);
-            }
-            
-          }
-
-          arcs.selectAll("path")
-            .data(arcdata)
-            .enter()
-            .append("path")
-            .style("stroke-width", function(d) { 
-              
-              return d.size;
-            })
-            .style("stroke", function(d) { 
-              if(d.type=="inflow")
-                return "green";
-              else
-                return 'red';
-            })
-            
-            .attr('d', function(d) { 
-              return lngLatToArc(d);
-            });
-            
-        }
-
-        function lngLatToArc(d){
-          // If no bend is supplied, then do the plain square root
-          bend = 1.2;
-          // `d[sourceName]` and `d[targetname]` are arrays of `[lng, lat]`
-          // Note, people often put these in lat then lng, but mathematically we want x then y which is `lng,lat`
-          var sourceLngLat = d['sourceLocation'],
-              targetLngLat = d['targetLocation'];
-          if (targetLngLat && sourceLngLat) {
-            var sourceXY = sourceLngLat//projection( sourceLngLat ),
-                targetXY = targetLngLat//projection( targetLngLat );
-            // Uncomment this for testing, useful to see if you have any null lng/lat values
-            // if (!targetXY) console.log(d, targetLngLat, targetXY)
-            var sourceX = sourceXY[0],
-                sourceY = sourceXY[1];
-            var targetX = targetXY[0],
-                targetY = targetXY[1];
-            var dx = targetX - sourceX,
-                dy = targetY - sourceY,
-                dr = Math.sqrt(dx * dx + dy * dy)*bend;
-            // To avoid a whirlpool effect, make the bend direction consistent regardless of whether the source is east or west of the target
-            //var west_of_source = (targetX - sourceX) < 0;
-            
-
-            return "M" + targetX + "," + targetY + "A" + dr + "," + dr + " 0 0,1 " + sourceX + "," + sourceY; 
-          }
-        }
-
-        function displaySelectedPib(){
-
-          color = d3.scaleQuantize()
-            .range(shades_blue)
-            .domain([lowest_pib*0.125,highest_pib*0.125]);
-
-          country_draw.style("fill", function(d) {
-            var pib = d.pib.average;
-            if (country_selected.migration.arrive.sommes[d.id]) {
-              return color(pib);
-            } else {
-              return "#ccc"; // #ccc = "grey"
-            }
-          });
-        }
-
-        function displaySelectedMigration(){
-
-          var lowest_migration_flow = d3.min(d3.values(country_selected.migration.arrive.sommes)),
-              highest_migration_flow = d3.max(d3.values(country_selected.migration.arrive.sommes));
-
-          color = d3.scaleQuantize()
-                    .range(shades_blue)
-                    .domain([lowest_migration_flow, highest_migration_flow]);
-          
-          country_draw.style("fill", function(d) {
-              var migration_number = country_selected.migration.arrive.sommes[d.id];
-              if (migration_number){
-                return color(migration_number);
-              } else {
-                return "#ccc";
-              }
-            });
-        }
-
-        function updateDate(){
-          feedPibData();
-          feedMigrationData();
-          feedSelectedMigrationData();
-          feedSelectedAveragePib();
-          if(country_selected){
-            displaySelected();
-          }else if(migrant_selected || pib_selected){
-            display();
-          }
-            
-        }
-
-        function reset(){
-          // Init.
-          feedPibData();
-          feedMigrationData();
-          setRange(MIN_YEAR, MAX_YEAR);
-          feedSelectedMigrationData();
-          feedSelectedAveragePib();
-          country_selected = null;
-          country_draw.style("fill", "#ccc");
-          arcs.remove();
+            country_selected = null;
+            country_draw.style("fill", "#ccc");
+            arcs.remove();
         }
 
 
         // Gather all migration data from migration_data and feed it into map_data.
-        function feedMigrationData(){
-          for (var i = 0; i < map_data.length; i++){
-            var migration = {};
-            var departure = {};
-            var arrive = {};
-            for (var y = MIN_YEAR; y <= MAX_YEAR; y++){
-              departure[''+y] = new Array();
-              arrive[''+y] = new Array();
+        function feedMigrationData() {
+            for (var i = 0; i < map_data.length; i++) {
+                var migration = {};
+                var departure = {};
+                var arrive = {};
+                for (var y = MIN_YEAR; y <= MAX_YEAR; y++) {
+                    departure['' + y] = new Array();
+                    arrive['' + y] = new Array();
+                }
+                departure['somme'] = new Array();
+                arrive['somme'] = new Array();
+                migration.departure = departure;
+                migration.arrive = arrive;
+                map_data[i].migration = migration;
             }
-            departure['somme'] = new Array();
-            arrive['somme'] = new Array();
-            migration.departure = departure;
-            migration.arrive = arrive;
-            map_data[i].migration = migration;
-          }
 
-          var migrations_pointer = 0; // pointer for the migration_data file.
+            var migrations_pointer = 0; // pointer for the migration_data file.
 
-          for(var i = 0; i < map_data.length; i++){
+            for (var i = 0; i < map_data.length; i++) {
 
-            // Move the pointer just before the 1st relevant line.
-            while(migration_data[migrations_pointer].CODECOUNTRY < map_data[i].id){
-              migrations_pointer++;
+                // Move the pointer just before the 1st relevant line.
+                while (migration_data[migrations_pointer].CODECOUNTRY < map_data[i].id) {
+                    migrations_pointer++;
+                }
+
+                // For all relevant lines, do something.
+                while (migration_data[migrations_pointer].CODECOUNTRY == map_data[i].id) {
+                    var migrate = {};
+                    migrate.dest = migration_data[migrations_pointer].COU;
+                    migrate.value = migration_data[migrations_pointer].Value;
+                    if (migration_data[migrations_pointer].VAR == "INFLOW") {
+                        // Nous sommes dans le cas de personnes entrantes.
+                        map_data[i].migration.arrive['' + migration_data[migrations_pointer].YEAR].push(migrate);
+                    } else {
+                        // Nous sommes dans le cas de personnes partantes.
+                        map_data[i].migration.departure['' + migration_data[migrations_pointer].YEAR].push(migrate);
+                    }
+
+                    // If migrations_pointer = migration_data.length - 1 : break loop.
+                    if (migration_data[migrations_pointer + 1] === undefined) {
+                        break;
+                    } else {
+                        migrations_pointer++; // Else, increment pointer.
+                    }
+                }
             }
-    
-            // For all relevant lines, do something.
-            while(migration_data[migrations_pointer].CODECOUNTRY == map_data[i].id){
-              var migrate = {};
-              migrate.dest = migration_data[migrations_pointer].COU;
-              migrate.value = migration_data[migrations_pointer].Value;
-              if(migration_data[migrations_pointer].VAR == "INFLOW"){
-                // Nous sommes dans le cas de personnes entrantes.
-                map_data[i].migration.arrive[''+migration_data[migrations_pointer].YEAR].push(migrate);
-              }else{
-                // Nous sommes dans le cas de personnes partantes.
-                map_data[i].migration.departure[''+migration_data[migrations_pointer].YEAR].push(migrate);
-              }
-
-              // If migrations_pointer = migration_data.length - 1 : break loop.
-              if (migration_data[migrations_pointer + 1] === undefined) { 
-                break;
-              } else {
-                migrations_pointer++;  // Else, increment pointer.
-              }
-            } 
-          }
         }
 
-        
+
 
         /* This function calculate the inflow and outflow of migrants
         between two date and save it in a table. For each row you have the sum.
@@ -598,156 +623,170 @@
           map_data[i].migration.ratio = 
                 map_data[i].migration.arrive.somme / map_data[i].migration.departure.somme
         */
-        function feedSelectedMigrationData(){
-          highest_ratio = -100000;
-          lowest_ratio = +100000;
+        function feedSelectedMigrationData() {
+            highest_ratio = -100000;
+            lowest_ratio = +100000;
 
-          for(var i = 0; i < map_data.length; i++){// Pour chaque pays
-            var sums_arrive = {},
-                sums_departure= {}; 
-            var sum_arrive = 0,
-                sum_departure = 0;
-            for (var y = min_selected_year; y <= max_selected_year; y++){ // Pour chaque année de l'intervalle
-              for(var x = 0; x < map_data[i].migration.arrive[''+y].length; x++){
-                var val_arrive = parseInt((map_data[i].migration.arrive[''+y])[x].value);
-                sum_arrive += val_arrive;
-                if(sums_arrive[(map_data[i].migration.arrive[''+y])[x].dest]){
-                  sums_arrive[(map_data[i].migration.arrive[''+y])[x].dest] += val_arrive;
-                }else{
-                  sums_arrive[(map_data[i].migration.arrive[''+y])[x].dest] = val_arrive;
+            for (var i = 0; i < map_data.length; i++) { // Pour chaque pays
+                var sums_arrive = {},
+                    sums_departure = {};
+                var sum_arrive = 0,
+                    sum_departure = 0;
+                for (var y = min_selected_year; y <= max_selected_year; y++) { // Pour chaque année de l'intervalle
+                    for (var x = 0; x < map_data[i].migration.arrive['' + y].length; x++) {
+                        var val_arrive = parseInt((map_data[i].migration.arrive['' + y])[x].value);
+                        sum_arrive += val_arrive;
+                        if (sums_arrive[(map_data[i].migration.arrive['' + y])[x].dest]) {
+                            sums_arrive[(map_data[i].migration.arrive['' + y])[x].dest] += val_arrive;
+                        } else {
+                            sums_arrive[(map_data[i].migration.arrive['' + y])[x].dest] = val_arrive;
+                        }
+                    }
+                    for (var x = 0; x < map_data[i].migration.departure['' + y].length; x++) {
+                        var val_departure = parseInt((map_data[i].migration.departure['' + y])[x].value);
+                        sum_departure += val_departure;
+                        if (sums_departure[(map_data[i].migration.departure['' + y])[x].dest]) {
+                            sums_departure[(map_data[i].migration.departure['' + y])[x].dest] += val_departure;
+                        } else {
+                            sums_departure[(map_data[i].migration.departure['' + y])[x].dest] = val_departure;
+                        }
+                    }
                 }
-              }
-              for(var x = 0; x < map_data[i].migration.departure[''+y].length; x++){
-                var val_departure = parseInt((map_data[i].migration.departure[''+y])[x].value);
-                sum_departure+=val_departure;
-                if(sums_departure[(map_data[i].migration.departure[''+y])[x].dest]){
-                  sums_departure[(map_data[i].migration.departure[''+y])[x].dest] += val_departure;
-                }else{
-                  sums_departure[(map_data[i].migration.departure[''+y])[x].dest] = val_departure;
-                }
-              }
+
+                map_data[i].migration.departure.sommes = sums_departure;
+                map_data[i].migration.departure.somme = sum_departure;
+                map_data[i].migration.arrive.sommes = sums_arrive;
+                map_data[i].migration.arrive.somme = sum_arrive;
+                map_data[i].migration.min_selected_year = min_selected_year;
+                map_data[i].migration.max_selected_year = max_selected_year;
+
+
+                var ratio = sum_arrive / sum_departure;
+                if (ratio > 100) ratio = 100;
+                map_data[i].migration.ratio = ratio;
+                updateExtremaRatio(ratio);
             }
-
-            map_data[i].migration.departure.sommes = sums_departure;
-            map_data[i].migration.departure.somme = sum_departure;
-            map_data[i].migration.arrive.sommes = sums_arrive;
-            map_data[i].migration.arrive.somme = sum_arrive;
-            map_data[i].migration.min_selected_year = min_selected_year;
-            map_data[i].migration.max_selected_year = max_selected_year;
-
-
-            var ratio = sum_arrive/sum_departure;
-            if (ratio > 100) ratio = 100;
-            map_data[i].migration.ratio = ratio;
-            updateExtremaRatio(ratio);
-          }
         }
 
         // Update max or min migrant ratio **if needed**.
-        function updateExtremaRatio(val){
-          if(highest_ratio<val){
-            highest_ratio = val;
-          }
-          if(lowest_ratio>val){
-            lowest_ratio = val;
-          }
+        function updateExtremaRatio(val) {
+            if (highest_ratio < val) {
+                highest_ratio = val;
+            }
+            if (lowest_ratio > val) {
+                lowest_ratio = val;
+            }
         }
 
         // Gather all PIB from pib_data and feed it into map_data.
-        function feedPibData(){
-          lowest_pib = 10000000000;
-          highest_pib = -10000000000;
-          for(var i = 0; i < map_data.length; i++){
-            var indice_country = pib_data.findIndex(p => p['Country Code'] == map_data[i].id);
-            if(indice_country != -1){
-              map_data[i].pib = pib_data[indice_country];
-              map_data[i].pib.average = getAveragePib(min_selected_year, max_selected_year, pib_data[indice_country]);
-              updateExtremaPib(map_data[i].pib.average);
-            } else {
-              var pib = {};
-              pib.average = -1;
-              map_data[i].pib = pib;
+        function feedPibData() {
+            lowest_pib = 10000000000;
+            highest_pib = -10000000000;
+            for (var i = 0; i < map_data.length; i++) {
+                var indice_country = pib_data.findIndex(p => p['Country Code'] == map_data[i].id);
+                if (indice_country != -1) {
+                    map_data[i].pib = pib_data[indice_country];
+                    map_data[i].pib.average = getAveragePib(min_selected_year, max_selected_year, pib_data[indice_country]);
+                    updateExtremaPib(map_data[i].pib.average);
+                } else {
+                    var pib = {};
+                    pib.average = -1;
+                    map_data[i].pib = pib;
+                }
             }
-          }
         }
 
 
-        function feedSelectedAveragePib(){
-          lowest_pib = 10000000000;
-          highest_pib = -10000000000;
-          for(var i = 0; i < map_data.length; i++){
-            if(map_data[i].pib.average != -1){
-              map_data[i].pib.average = getAveragePib(min_selected_year, max_selected_year, map_data[i].pib);
-              updateExtremaPib(map_data[i].pib.average);
+        function feedSelectedAveragePib() {
+            lowest_pib = 10000000000;
+            highest_pib = -10000000000;
+            for (var i = 0; i < map_data.length; i++) {
+                if (map_data[i].pib.average != -1) {
+                    map_data[i].pib.average = getAveragePib(min_selected_year, max_selected_year, map_data[i].pib);
+                    updateExtremaPib(map_data[i].pib.average);
+                }
             }
-          }
         }
 
-        function getAveragePib(first_years, last_years, one_country_pib){
-          var nb_years = last_years-first_years+1;
-          var sum = 0;
-          for(var j = first_years; j <= last_years; j++){
-            var value = parseFloat(one_country_pib[""+j]);
-            if(value){
-              sum += value;
-            }else{
-              nb_years--;
+        function getAveragePib(first_years, last_years, one_country_pib) {
+            var nb_years = last_years - first_years + 1;
+            var sum = 0;
+            for (var j = first_years; j <= last_years; j++) {
+                var value = parseFloat(one_country_pib["" + j]);
+                if (value) {
+                    sum += value;
+                } else {
+                    nb_years--;
+                }
             }
-          }
-          return (sum / nb_years);
+            return (sum / nb_years);
         }
 
         // Update max or min PIB **if needed**.
-        function updateExtremaPib(val){
-          if(highest_pib<val){
-            highest_pib = val;
-          }
-          if(lowest_pib>val){
-            lowest_pib = val;
-          }
+        function updateExtremaPib(val) {
+            if (highest_pib < val) {
+                highest_pib = val;
+            }
+            if (lowest_pib > val) {
+                lowest_pib = val;
+            }
         }
 
-        function roundNumber(n){
-          // Round number n to 2 decimals
-          // If n > 1,000,000,000, return "1 Md"
-          // Same for 1,000,000 and 1,000.
+        function roundNumber(n) {
+            // Round number n to 2 decimals
+            // If n > 1,000,000,000, return "1 Md"
+            // Same for 1,000,000 and 1,000.
 
-          if (n >= 1000000000){
-            n = Math.round(n * 100 /1000000000)/100;
-            n = n + " Md";
-          }
-          else if (n >= 1000000){
-            n = Math.round(n*100/1000000)/100;
-            n = n + " M";
-          }
-          else if (n >= 1000){
-            n = Math.round(n*100/1000)/100;
-            n = n + " k";
-          }
-          else {
-            n = Math.round(n*100)/100;
-          }
-          return n
+            if (n >= 1000000000) {
+                n = Math.round(n * 100 / 1000000000) / 100;
+                n = n + " Md";
+            } else if (n >= 1000000) {
+                n = Math.round(n * 100 / 1000000) / 100;
+                n = n + " M";
+            } else if (n >= 1000) {
+                n = Math.round(n * 100 / 1000) / 100;
+                n = n + " k";
+            } else {
+                n = Math.round(n * 100) / 100;
+            }
+            return n
         }
 
 
-        function displayHelp(){
-          var message = "Start: nothing. \n" + 
-                        "Click on country: color show the importance of *inflow* in the country. \n" + 
-                        "Click on PIB: obvious. \n" + 
-                        "Click on ratio: show migration ratio (arrival/departures). \n TO BE UPDATED";
-          alert(message);
+        function displayHelp() {
+            var message = "Start: nothing. \n" +
+                "Click on country: color show the importance of *inflow* in the country. \n" +
+                "Click on PIB: obvious. \n" +
+                "Click on ratio: show migration ratio (arrival/departures). \n TO BE UPDATED";
+            alert(message);
         }
 
-        
+        function displayLegend() {
+            for (var i = 0; i < shades_blue.length; i += 2) {
+                var rectangle = svg_legend.append("rect")
+                    .attr("x", 10)
+                    .attr("y", 30 * (i / 2) + 10)
+                    .attr("width", 40)
+                    .attr("height", 25)
+                    .style("fill", shades_blue[i]);
+            }
 
-  </script>
+            var circle = svg_legend.append("line")
+                .attr("x1", 100)
+                .attr("y1", 5)
+                .attr("x2", 100)
+                .attr("y2", 50)
+                .attr("stroke-width", 20)
+                .attr("stroke", "black");
+        }
+    </script>
 
-   <!-- Bootstrap core JavaScript
+    <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="js/bootstrap.min.js"></script>
     -->
-  </body>
+</body>
+
 </html>
