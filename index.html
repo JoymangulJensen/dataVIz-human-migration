@@ -118,6 +118,8 @@
                 <option>Select a coloration</option>
                 <option onclick="displayPib()">GDP</option>
                 <option onclick="displayRatio()">Migrant-ratio</option>
+                <option onclick="displayArrive()">Arrived</option>
+                <option onclick="displayDeparture()">Departure</option>
             </select>
                 </div>
             </div>
@@ -158,7 +160,11 @@
         var lowest_pib,
             highest_pib,
             lowest_ratio,
-            highest_ratio;
+            highest_ratio,
+            lowest_departure,
+            highest_departure,
+            lowest_arrive,
+            highest_arrive;
 
         var map_data,
             pib_data,
@@ -168,7 +174,9 @@
         var country_selected;
 
         var pib_selected = false,
-            migrant_selected = false;
+            migrant_selected = false,
+            arrive_selected = false,
+            departure_selected = false;
 
         // Shades of light blue to saturated blue.
         var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"]
@@ -190,7 +198,7 @@
 
         var svg_legend = d3.select("#legend_d3")
             .append("svg")
-            .attr("width", 150)
+            .attr("width", 200)
             .attr("height", height);
 
         var rectangles_legende = new Array();
@@ -351,83 +359,115 @@
                     })
                     .on('click', function(country) { // Click on a country to see migration.
                         country_selected = country;
-                        displaySelected();
+                        firstDisplayLegendArrow();
+                        display();
                     });
             });
         });
 
         firstDisplayLegendColoration();
-        //firstDisplayLegendArrow();
 
         function display() {
+            if(country_selected){
+              displayArcs();
+            }
             if (pib_selected) {
                 displayPib();
             } else if (migrant_selected) {
                 displayRatio();
+            }else if (arrive_selected){
+                displayArrive();
+            }else if (departure_selected){
+                displayDeparture();
             }
-            modifyLegendColoration();
         }
 
         function displayPib() {
             migrant_selected = false;
             pib_selected = true;
-            if (country_selected) {
-                displaySelectedPib();
-            } else {
-                color = d3.scaleQuantize()
+            departure_selected = false;
+            arrive_selected = false;
+            color = d3.scaleQuantize()
                     .range(shades_blue)
-                    .domain([lowest_pib * 0.125, highest_pib * 0.125]);
-
-                country_draw.style("fill", function(d) {
-                    var pib = d.pib.average;
-                    if (pib) {
-                        return color(pib);
-                    } else {
-                        return "#ccc"; // #ccc = "grey"
-                    }
-                });
-            }
+                    .domain([lowest_pib, highest_pib]);
+            country_draw.style("fill", function(d) {
+                var pib = d.pib.average;
+                if (((country_selected && country_selected.migration.arrive.sommes[d.id]) || !country_selected) && pib)  {
+                    return color(pib);
+                } else {
+                    return "#ccc"; // #ccc = "grey"
+                }
+            });
             modifyLegendColoration();
         }
 
         function displayRatio() {
             migrant_selected = true;
             pib_selected = false;
-            if (country_selected) {
-                displaySelectedMigration();
-            } else {
-                color = d3.scaleQuantize()
+            departure_selected = false;
+            arrive_selected = false;
+            color = d3.scaleQuantize()
                     .range(shades_green)
-                    .domain([lowest_ratio * 0.5, highest_ratio / 25]);
-
-                country_draw.style("fill", function(d) {
-                    var ratio = d.migration.ratio;
-                    if (ratio) {
-                        return color(ratio);
-                    } else {
-                        return "#ccc"; // #ccc = "grey"
-                    }
-                })
-            }
+                    .domain([lowest_ratio, highest_ratio/20]);
+            country_draw.style("fill", function(d) {
+                var ratio = d.migration.ratio;
+                if (((country_selected && country_selected.migration.arrive.sommes[d.id]) || !country_selected)&&ratio) {
+                    return color(ratio);
+                } else {
+                    return "#ccc"; // #ccc = "grey"
+                }
+            })
             modifyLegendColoration();
         }
 
-        function displaySelected() {
-            if (pib_selected) {
-                displaySelectedPib();
-            } else if (migrant_selected) {
-                displaySelectedMigration();
-            }
-            displayArcs();
-            firstDisplayLegendArrow();
+        function displayArrive() {
+          migrant_selected = false;
+          pib_selected = false;
+          departure_selected = false;
+          arrive_selected = true;
+
+          color = d3.scaleQuantize()
+              .range(shades_green)
+              .domain([lowest_arrive, highest_arrive/5]);
+
+          country_draw.style("fill", function(d) {
+              var migration_number = d.migration.departure.somme;
+              if (((country_selected && country_selected.migration.arrive.sommes[d.id]) || !country_selected) && migration_number) {
+                  return color(migration_number);
+              } else {
+                  return "#ccc";
+              }
+          });
+          modifyLegendColoration();
         }
 
+        function displayDeparture() {
+          migrant_selected = false;
+          pib_selected = false;
+          departure_selected = true;
+          arrive_selected = false;
+
+          color = d3.scaleQuantize()
+              .range(shades_green)
+              .domain([lowest_departure, highest_departure/5]);
+
+            country_draw.style("fill", function(d) {
+                var migration_number = d.migration.departure.somme;
+                if (((country_selected && country_selected.migration.arrive.sommes[d.id]) || !country_selected) && migration_number) {
+                    return color(migration_number);
+                } else {
+                    return "#ccc";
+                }
+            });
+            modifyLegendColoration();
+        }
         function displayArcs() {
             arcs.remove();
             arcs = svg.append("g")
                 .attr("class", "arcs");
             var source = path.centroid(country_selected);
 
+            console.log(country_selected.migration.departure.sommes, country_selected.migration.arrive.sommes);
             arcdata = new Array();
             for (var i = 0; i < map_data.length; i++) {
                 if (country_selected.migration.departure.sommes['' + map_data[i].id]) {
@@ -438,7 +478,6 @@
                     arc.size = Math.sqrt(country_selected.migration.arrive.sommes['' + map_data[i].id]) / 50;
                     arcdata.push(arc);
                 }
-
                 if (country_selected.migration.arrive.sommes['' + map_data[i].id]) {
                     var arc = {};
                     arc.source = path.centroid(map_data[i]);
@@ -503,52 +542,15 @@
             }
         }
 
-        function displaySelectedPib() {
-
-            color = d3.scaleQuantize()
-                .range(shades_blue)
-                .domain([lowest_pib * 0.125, highest_pib * 0.125]);
-
-            country_draw.style("fill", function(d) {
-                var pib = d.pib.average;
-                if (country_selected.migration.arrive.sommes[d.id]) {
-                    return color(pib);
-                } else {
-                    return "#ccc"; // #ccc = "grey"
-                }
-            });
-        }
-
-        function displaySelectedMigration() {
-
-            var lowest_migration_flow = d3.min(d3.values(country_selected.migration.arrive.sommes)),
-                highest_migration_flow = d3.max(d3.values(country_selected.migration.arrive.sommes));
-
-            color = d3.scaleQuantize()
-                .range(shades_green)
-                .domain([lowest_migration_flow, highest_migration_flow]);
-
-            country_draw.style("fill", function(d) {
-                var migration_number = country_selected.migration.arrive.sommes[d.id];
-                if (migration_number) {
-                    return color(migration_number);
-                } else {
-                    return "#ccc";
-                }
-            });
-        }
-
         function updateDate() {
             feedPibData();
             feedMigrationData();
             feedSelectedMigrationData();
             feedSelectedAveragePib();
-            if (country_selected) {
-                displaySelected();
-            } else if (migrant_selected || pib_selected) {
-                display();
+            if (migrant_selected || pib_selected || arrive_selected |- departure_selected) {
+              modifyLegendColoration();
             }
-
+            display();
         }
 
         function reset() {
@@ -631,6 +633,10 @@
         function feedSelectedMigrationData() {
             highest_ratio = -100000;
             lowest_ratio = +100000;
+            highest_arrive = -100000;
+            lowest_arrive = 100000000000;
+            highest_departure = -10000000;
+            lowest_departure = 10000000000;
 
             for (var i = 0; i < map_data.length; i++) { // Pour chaque pays
                 var sums_arrive = {},
@@ -670,6 +676,8 @@
                 if (ratio > 100) ratio = 100;
                 map_data[i].migration.ratio = ratio;
                 updateExtremaRatio(ratio);
+                updateExtremaArrive(sum_arrive);
+                updateExtremaDeparture(sum_departure);
             }
         }
 
@@ -680,6 +688,26 @@
             }
             if (lowest_ratio > val) {
                 lowest_ratio = val;
+            }
+        }
+
+        // Update max or min migrant ratio **if needed**.
+        function updateExtremaArrive(val) {
+            if (highest_arrive < val) {
+                highest_arrive = val;
+            }
+            if (lowest_arrive > val) {
+                lowest_arrive = val;
+            }
+        }
+
+        // Update max or min migrant ratio **if needed**.
+        function updateExtremaDeparture(val) {
+            if (highest_departure < val) {
+                highest_departure = val;
+            }
+            if (lowest_departure > val) {
+                lowest_departure = val;
             }
         }
 
@@ -774,6 +802,20 @@
                 .attr("fill", "black")
                 .text("Coloration");
             rectangles_legende.push(text);
+            var text = svg_legend.append("text")
+                .attr("x", 70)
+                .attr("y", 45)
+                .attr("font-size", "15px")
+                .attr("fill", "black")
+                .text("");
+            rectangles_legende.push(text);
+            var text = svg_legend.append("text")
+                .attr("x", 70)
+                .attr("y", 25+20*shades_blue.length)
+                .attr("font-size", "15px")
+                .attr("fill", "black")
+                .text("");
+            rectangles_legende.push(text);
             for (var i = 0; i < shades_blue.length; i++) {
                 var rectangle = svg_legend.append("rect")
                     .attr("x", 0)
@@ -850,13 +892,29 @@
         }
 
         function modifyLegendColoration() {
-            for (var i = 1; i < rectangles_legende.length; i++) {
+            if(pib_selected){
+              rectangles_legende[1].text(""+roundNumber(lowest_pib));
+              rectangles_legende[2].text(""+roundNumber(highest_pib));
+            } else if(migrant_selected){
+              rectangles_legende[1].text(""+roundNumber(lowest_ratio));
+              rectangles_legende[2].text(""+roundNumber(highest_ratio/*/20*/));
+            } else if(arrive_selected){
+              rectangles_legende[1].text(""+roundNumber(lowest_arrive));
+              rectangles_legende[2].text(""+roundNumber(highest_arrive/*/5*/));
+            } else if(departure_selected){
+              rectangles_legende[1].text(""+roundNumber(lowest_departure));
+              rectangles_legende[2].text(""+roundNumber(highest_departure/*/5*/));
+            }
+
+            for (var i = 3; i < rectangles_legende.length; i++) {
                 rectangles_legende[i].style("fill", function() {
                     if (pib_selected) {
                         return shades_blue[i];
                     } else if (migrant_selected) {
                         return shades_green[i];
-                    } else {
+                    } else if(arrive_selected || departure_selected) {
+                        return shades_green[i];
+                    }else{
                         return "#ccc";
                     }
                 });
