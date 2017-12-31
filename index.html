@@ -475,7 +475,7 @@
                     arc.source = source;
                     arc.target = path.centroid(map_data[i]);
                     arc.type = "outflow";
-                    arc.size = Math.sqrt(country_selected.migration.arrive.sommes['' + map_data[i].id]) / 50;
+                    arc.size = Math.sqrt(country_selected.migration.arrive.sommes['' + map_data[i].id]) / 25;
                     arcdata.push(arc);
                 }
                 if (country_selected.migration.arrive.sommes['' + map_data[i].id]) {
@@ -483,7 +483,7 @@
                     arc.source = path.centroid(map_data[i]);
                     arc.target = source;
                     arc.type = "inflow";
-                    arc.size = Math.sqrt(country_selected.migration.arrive.sommes['' + map_data[i].id]) / 50;
+                    arc.size = Math.sqrt(country_selected.migration.arrive.sommes['' + map_data[i].id]) / 25;
                     arcdata.push(arc);
                 }
 
