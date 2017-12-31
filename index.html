@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Home page</title>
+    <title>World map !</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -72,7 +72,8 @@
             stroke-opacity: 0.5;
             stroke-width: 1.25px;
         }
-
+    </style>
+    <style>
         h1 {
             text-align: center !important;
         }
@@ -88,16 +89,22 @@
 </head>
 
 <body>
-
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-
-        <a class="navbar-brand" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
-        <!--<a onclick="displayHelp()" class="navbar-brand" href="#">Help</a>-->
-        <a class="navbar-brand" href="https://github.com/JoymangulJensen/dataVIz-human-migration/blob/master/Reports/Intermediate/studying-human-migration.pdf">Doc</a>
-        <a onclick="reset()" class="navbar-brand" href="#">Reset</a>
-        <!--<a onclick="displayRatio()" class="navbar-brand selected" href="#">Migrant-ratio</a>-->
-        <!--<a onclick="displayPib()" class="navbar-brand" href="#">GDP</a>-->
-
+    <nav class="navbar navbar-dark fixed-top bg-dark"> 
+        <ul class="">
+            <a class="navbar-brand" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
+            <a onclick="reset()" class="navbar-brand" href="#">Reset</a>
+            <!--<a onclick="displayRatio()" class="navbar-brand selected" href="#">Migrant-ratio</a>-->
+            <!--<a onclick="displayPib()" class="navbar-brand" href="#">GDP</a>-->
+            <!--<a onclick="displayHelp()" class="navbar-brand" href="#">Help</a>-->
+        </ul>
+            <div id="slider_d3"></div>
+            <select>
+                <option>Select a coloration</option>
+                <option onclick="displayPib()">GDP</option>
+                <option onclick="displayRatio()">Migrant-ratio</option>
+                <option onclick="displayArrive()">Arrived</option>
+                <option onclick="displayDeparture()">Departure</option>
+            </select>
     </nav>
     <br/><br/><br/>
     <main role="main">
@@ -106,21 +113,7 @@
             <!-- Example row of columns -->
             <div class="row">
                 <div class="col-md-10">
-                    <h1 id="title">World map !</h1>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-10">
-                    <div id="slider_d3"></div>
-                </div>
-                <div class="col-md-2">
-                    <select>
-                <option>Select a coloration</option>
-                <option onclick="displayPib()">GDP</option>
-                <option onclick="displayRatio()">Migrant-ratio</option>
-                <option onclick="displayArrive()">Arrived</option>
-                <option onclick="displayDeparture()">Departure</option>
-            </select>
+                    <h1 id="title"></h1>
                 </div>
             </div>
             <div class="row">
@@ -143,6 +136,7 @@
 
     </main>
 
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
     <footer class="container">
         <p align="center">&copy; Master 2 Data Science 2017</p>
     </footer>
@@ -178,6 +172,13 @@
             arrive_selected = false,
             departure_selected = false;
 
+        var zoom = d3.zoom()
+            // no longer in d3 v4 - zoom initialises with zoomIdentity, so it's already at origin
+            // .translate([0, 0]) 
+            // .scale(1) 
+            .scaleExtent([1, 8])
+            .on("zoom", zoomed);
+
         // Shades of light blue to saturated blue.
         var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"]
         // Shades of light green to saturated green.
@@ -203,6 +204,8 @@
 
         var rectangles_legende = new Array();
         var arrow_legende = new Array();
+        
+        svg.call(zoom);
 
         var map = svg.append('g')
             .attr("class", "map")
@@ -392,7 +395,7 @@
                     .domain([lowest_pib, highest_pib]);
             country_draw.style("fill", function(d) {
                 var pib = d.pib.average;
-                if (((country_selected && country_selected.migration.arrive.sommes[d.id]) || !country_selected) && pib)  {
+                if (( country_selected && (( country_selected.migration.arrive.sommes[d.id] ) || country_selected.migration.departure.sommes[d.id] ) || !country_selected ) && pib )  {
                     return color(pib);
                 } else {
                     return "#ccc"; // #ccc = "grey"
@@ -411,7 +414,7 @@
                     .domain([lowest_ratio, highest_ratio/20]);
             country_draw.style("fill", function(d) {
                 var ratio = d.migration.ratio;
-                if (((country_selected && country_selected.migration.arrive.sommes[d.id]) || !country_selected)&&ratio) {
+                if ((country_selected && ((country_selected.migration.arrive.sommes[d.id])||country_selected.migration.departure.sommes[d.id]) || !country_selected)&&ratio) {
                     return color(ratio);
                 } else {
                     return "#ccc"; // #ccc = "grey"
@@ -432,7 +435,7 @@
 
           country_draw.style("fill", function(d) {
               var migration_number = d.migration.departure.somme;
-              if (((country_selected && country_selected.migration.arrive.sommes[d.id]) || !country_selected) && migration_number) {
+              if (( country_selected && ((country_selected.migration.arrive.sommes[d.id])||country_selected.migration.departure.sommes[d.id]) || !country_selected) && migration_number) {
                   return color(migration_number);
               } else {
                   return "#ccc";
@@ -453,7 +456,7 @@
 
             country_draw.style("fill", function(d) {
                 var migration_number = d.migration.departure.somme;
-                if (((country_selected && country_selected.migration.arrive.sommes[d.id]) || !country_selected) && migration_number) {
+                if (( country_selected && ((country_selected.migration.arrive.sommes[d.id])||country_selected.migration.departure.sommes[d.id]) || !country_selected) && migration_number) {
                     return color(migration_number);
                 } else {
                     return "#ccc";
@@ -467,7 +470,6 @@
                 .attr("class", "arcs");
             var source = path.centroid(country_selected);
 
-            console.log(country_selected.migration.departure.sommes, country_selected.migration.arrive.sommes);
             arcdata = new Array();
             for (var i = 0; i < map_data.length; i++) {
                 if (country_selected.migration.departure.sommes['' + map_data[i].id]) {
@@ -475,7 +477,7 @@
                     arc.source = source;
                     arc.target = path.centroid(map_data[i]);
                     arc.type = "outflow";
-                    arc.size = Math.sqrt(country_selected.migration.arrive.sommes['' + map_data[i].id]) / 25;
+                    arc.size = Math.sqrt(country_selected.migration.departure.sommes['' + map_data[i].id]) / 25;
                     arcdata.push(arc);
                 }
                 if (country_selected.migration.arrive.sommes['' + map_data[i].id]) {
@@ -488,7 +490,6 @@
                 }
 
             }
-
             arcs.selectAll("path")
                 .data(arcdata)
                 .enter()
@@ -938,6 +939,12 @@
         function clearLegend() {
             clearLegendArrow();
             clearLegendColoration();
+        }
+
+        function zoomed() {
+            svg.style("stroke-width", 1.5 / d3.event.transform.k + "px");
+            // g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")"); // not in d3 v4
+            svg.attr("transform", d3.event.transform); // updated for d3 v4
         }
     </script>
 
