@@ -311,7 +311,7 @@
             setHandle2(max_selected_year);
         }
 
-        var arcs = svg.append("g")
+        var arcs = map.append("g")
             .attr("class", "arcs");
 
         d3.csv("data/pib_by_country.csv", function(data) {
@@ -466,7 +466,7 @@
         }
         function displayArcs() {
             arcs.remove();
-            arcs = svg.append("g")
+            arcs = map.append("g")
                 .attr("class", "arcs");
             var source = path.centroid(country_selected);
 
@@ -942,9 +942,9 @@
         }
 
         function zoomed() {
-            svg.style("stroke-width", 1.5 / d3.event.transform.k + "px");
+            map.style("stroke-width", 1.5 / d3.event.transform.k + "px");
             // g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")"); // not in d3 v4
-            svg.attr("transform", d3.event.transform); // updated for d3 v4
+            map.attr("transform", d3.event.transform); // updated for d3 v4
         }
     </script>
 
