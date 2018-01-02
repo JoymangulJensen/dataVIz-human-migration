@@ -418,8 +418,8 @@
                                     return country.properties.name +
                                         "<br> Selected years: " + country.migration.min_selected_year + "-" + country.migration.max_selected_year +
                                         "<br> GDP: " + roundNumber(country.pib.average) +
-                                        "<br> Inflow: " + roundNumber(country.migration.departure.somme) +
-                                        "<br> Outlow: " + roundNumber(country.migration.arrive.somme) +
+                                        "<br> Inflow: " + roundNumber(country.migration.arrive.somme) +
+                                        "<br> Outlow: " + roundNumber(country.migration.departure.somme) +
                                         "<br> Ratio: " + roundNumber(country.migration.ratio);
                                 } else {
                                     return "Unknown country.<br>Look at the console (F12)";
