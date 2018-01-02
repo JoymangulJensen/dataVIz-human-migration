@@ -166,7 +166,7 @@
             <!-- Example row of columns -->
             <div class="row">
                 <div class="col-md-10">
-                    <h1 id="map-title">Ceci est un titre</h1>
+                    <h1 id="map-title">Titre pas dynamique</h1>
                 </div>
             </div>
             <div class="row" >
@@ -224,8 +224,6 @@
 
         var country_selected;
 
-        var rectangles_legende = new Array();
-        var arrow_legende = new Array();
 
         // Shades of light blue to saturated blue.
         var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"]
@@ -249,9 +247,7 @@
             .attr("height", 50);
 
         var svg_legend = d3.select("#legend_d3")
-            .append("svg")
-            .attr("width", 200)
-            .attr("height", 400);
+            .append("div")
 
         var map = svg.append('g')
             .attr("class", "map")
@@ -399,7 +395,8 @@
                 setRange(MIN_YEAR, MAX_YEAR);
                 feedSelectedMigrationData();
                 feedSelectedAveragePib();
-
+                initLegendColoration();
+                initLegendArrow();
                 country_draw = map.selectAll("path")
                     .data(map_data).enter()
                     .append("path")
@@ -432,24 +429,20 @@
                     })
                     .on('click', function(country) { // Click on a country to see migration.
                         country_selected = country;
-                        firstDisplayLegendArrow();
+                        updateLegendArrow(country_selected);
                         display();
                     });
+
+                updateLegendColoration("none");
             });
         });
 
-
-        firstDisplayLegendColoration();
-
+        
 
 
 
 
         function display() {
-            if(country_selected){
-              displayArcs();
-            }
-
             switch(document.getElementById("select_coloration").value) {
                 case "none":
                     displayGrey()
@@ -469,11 +462,15 @@
                 default:
                     displayGrey()
             }
+
+            if(country_selected){
+              displayArcs();
+            }
         }
 
         function displayGrey(){
             country_draw.style("fill", "#ccc");
-            clearLegendColoration();
+            hideLegendColoration();
         }
 
         // Draw PIB colors and legend.
@@ -483,13 +480,13 @@
                     .domain([lowest_pib, highest_pib]);
             country_draw.style("fill", function(d) {
                 var pib = d.pib.average;
-                if (( country_selected && (( country_selected.migration.arrive.sommes[d.id] ) || country_selected.migration.departure.sommes[d.id] ) || !country_selected ) && pib )  {
+                if ( pib )  {
                     return color(pib);
                 } else {
                     return "#ccc"; // #ccc = "grey"
                 }
             });
-            modifyLegendColoration(document.getElementById("select_coloration").value);
+            updateLegendColoration(document.getElementById("select_coloration").value);
         }
 
         // Draw Migrant-ratio colors and legend.
@@ -499,13 +496,13 @@
                     .domain([lowest_ratio, highest_ratio/20]);
             country_draw.style("fill", function(d) {
                 var ratio = d.migration.ratio;
-                if ((country_selected && ((country_selected.migration.arrive.sommes[d.id])||country_selected.migration.departure.sommes[d.id]) || !country_selected)&&ratio) {
+                if (ratio) {
                     return color(ratio);
                 } else {
                     return "#ccc"; // #ccc = "grey"
                 }
             })
-            modifyLegendColoration(document.getElementById("select_coloration").value);
+            updateLegendColoration(document.getElementById("select_coloration").value);
         }
 
         // Draw Migrant-arrival colors and legend.
@@ -517,13 +514,13 @@
 
           country_draw.style("fill", function(d) {
               var migration_number = d.migration.departure.somme;
-              if (( country_selected && ((country_selected.migration.arrive.sommes[d.id])||country_selected.migration.departure.sommes[d.id]) || !country_selected) && migration_number) {
+              if (migration_number) {
                   return color(migration_number);
               } else {
                   return "#ccc";
               }
           });
-          modifyLegendColoration(document.getElementById("select_coloration").value);
+          updateLegendColoration(document.getElementById("select_coloration").value);
         }
 
         // Draw Migrant-departure colors and legend.
@@ -535,19 +532,21 @@
 
             country_draw.style("fill", function(d) {
                 var migration_number = d.migration.departure.somme;
-                if (( country_selected && ((country_selected.migration.arrive.sommes[d.id])||country_selected.migration.departure.sommes[d.id]) || !country_selected) && migration_number) {
+                if (migration_number) {
                     return color(migration_number);
                 } else {
                     return "#ccc";
                 }
             });
-            modifyLegendColoration(document.getElementById("select_coloration").value);
+            updateLegendColoration(document.getElementById("select_coloration").value);
         }
 
         function displayArcs() {
             arcs.remove();
             arcs = map.append("g")
                 .attr("class", "arcs");
+
+            // Problem here for countries with many island, translating the centroid...
             var source = path.centroid(country_selected);
 
             arcdata = new Array();
@@ -575,7 +574,6 @@
                 .enter()
                 .append("path")
                 .style("stroke-width", function(d) {
-
                     return d.size;
                 })
                 .style("stroke", function(d) {
@@ -633,7 +631,7 @@
                 case "none":
                     break;
                 default:
-                    modifyLegendColoration(document.getElementById("select_coloration").value);
+                    updateLegendColoration(document.getElementById("select_coloration").value);
             }
 
             display();
@@ -870,176 +868,195 @@
             return n
         }
 
+        
 
-        function displayHelp() {
-            var message = "Start: nothing. \n" +
-                "Click on country: color show the importance of *inflow* in the country. \n" +
-                "Click on PIB: obvious. \n" +
-                "Click on ratio: show migration ratio (arrival/departures). \n TO BE UPDATED";
-            alert(message);
+        function initLegendArrow() {
+
+            var outflow_card = svg_legend.append("div")
+                .attr("class", "outflow_card")
+                .attr("style", "display: none"); //none
+
+            outflow_card.append("h5")
+                .text("Outflow");
+
+            var outflow_card_svg = outflow_card.append("svg")
+                .attr("height","100")
+                .attr("width","200");
+
+            for (var i = 0; i < 3; i++) {
+                
+                var arrow = outflow_card_svg.append("line")
+                    .attr("x1", 0)
+                    .attr("y1", i * 20 +10)
+                    .attr("x2", 90)
+                    .attr("y2", i * 20 +10)
+                    .attr("stroke-width", "" + i+2) // Random value here!
+                    .attr("stroke", "red")
+                    .style('opacity', '0.5');
+                var text = outflow_card_svg.append("text")
+                    .attr("x", 100)
+                    .attr("y", i * 23 + 15 )
+                    .attr("font-size", "15px")
+                    .attr("fill", "black")
+                    .text(function(d, i){
+                        if (i == 0) return "random value min";
+                        if (i == 1) return "random value med"; // Random value here!
+                        if (i == 2) return "random value max";
+                        });
+            }
+
+
+            var inflow_card = svg_legend.append("div")
+                .attr("class", "inflow_card")
+                .attr("style", "display: none"); //none
+
+            inflow_card.append("h5")
+                .text("Inflow");
+
+            var inflow_card_svg = inflow_card.append("svg")
+                .attr("height","100")
+                .attr("width","200");
+
+            for (var i = 0; i < 3; i++) {
+                
+                var arrow = inflow_card_svg.append("line")
+                    .attr("x1", 0)
+                    .attr("y1", i * 20 +10)
+                    .attr("x2", 90)
+                    .attr("y2", i * 20 +10)
+                    .attr("stroke-width", "" + i+2) // Random value here!
+                    .attr("stroke", "green")
+                    .style('opacity', '0.5');
+                var text = inflow_card_svg.append("text")
+                    .attr("x", 100)
+                    .attr("y", i * 23 + 15 )
+                    .attr("font-size", "15px")
+                    .attr("fill", "black")
+                    .text(function(d, i){
+                        if (i == 0) return "random value min";
+                        if (i == 1) return "random value med"; // Random value here!
+                        if (i == 2) return "random value max";
+                        });
+            }
         }
 
-        function firstDisplayLegendColoration() {
-            var title = svg_legend.append("text")
-                .attr("x", 0)
-                .attr("y", 20)
-                .attr("font-size", "20px")
-                .attr("fill", "black")
-                .text("Coloration");
-            rectangles_legende.push(title);
-            var lowest = svg_legend.append("text") //Lowest (at the top)
+
+        function updateLegendArrow(country){
+
+            svg_legend.selectAll("div.outflow_card")
+                .attr("style", "display: initial"); //none
+            svg_legend.selectAll("div.inflow_card")
+                .attr("style", "display: initial"); //none
+
+        }
+
+
+        function initLegendColoration() {
+            var coloration_card = svg_legend.append("div")
+                .attr("class", "coloration_card")
+                .attr("style", "display: hidden");
+
+            var title = coloration_card.append("h5")
+                .attr("class", "title")
+
+            var coloration_card_svg = coloration_card.append("svg")
+                .attr("height","200")
+                .attr("width","200");
+
+
+            var lowest = coloration_card_svg.append("text") //Lowest (at the top)
                 .attr("x", 30)
-                .attr("y", 40)
+                .attr("y", 10)
+                .attr("class", "lowest")
                 .attr("font-size", "15px")
                 .attr("fill", "black")
                 .text("");
-            rectangles_legende.push(lowest);
-            var highest = svg_legend.append("text") //Highest (at the bottom)
+
+            var highest = coloration_card_svg.append("text") //Highest (at the bottom)
                 .attr("x", 30)
-                .attr("y", 40+10*shades_blue.length)
+                .attr("y", 10*shades_blue.length +10)
+                .attr("class", "highest")
                 .attr("font-size", "15px")
                 .attr("fill", "black")
                 .text("");
-            rectangles_legende.push(highest);
+
             for (var i = 0; i < shades_blue.length; i++) {
-                var rectangle = svg_legend.append("rect")
+                var rectangle = coloration_card_svg.append("rect")
                     .attr("x", 0)
-                    .attr("y", 10 * (i) + 30)
+                    .attr("y", 10 * i)
+                    .attr("class", "rectangle")
                     .attr("width", 20)
                     .attr("height", 20)
                     .style("fill", "#ccc");
-                rectangles_legende.push(rectangle);
             }
         }
 
-        function firstDisplayLegendArrow() {
-
-            var text = svg_legend.append("text")
-                .attr("x", 0)
-                .attr("y", 10 * shades_blue.length + 70)
-                .attr("font-size", "20px")
-                .attr("fill", "red")
-                .text("Outflow");
-            arrow_legende.push(text);
-
-            for (var i = 0; i < 3; i++) {
-                if (i == 0) var val = 500;
-                if (i == 1) var val = 10000;
-                if (i == 2) var val = 500000;
-                var arrow = svg_legend.append("line")
-                    .attr("x1", 0)
-                    .attr("y1", 10 * shades_blue.length + 80 + i * 20)
-                    .attr("x2", 90)
-                    .attr("y2", 10 * shades_blue.length + 80 + i * 20)
-                    .attr("stroke-width", Math.sqrt(val) / 50)
-                    .attr("stroke", "red")
-                    .style('opacity', '0.5');
-                var text = svg_legend.append("text")
-                    .attr("x", 100)
-                    .attr("y", 10 * shades_blue.length + 80 + i * 23)
-                    .attr("font-size", "15px")
-                    .attr("fill", "black")
-                    .text("" + val);
-                arrow_legende.push(arrow);
-                arrow_legende.push(text);
-            }
-
-
-            var text = svg_legend.append("text")
-                .attr("x", 0)
-                .attr("y", 10 * shades_blue.length + 160)
-                .attr("font-size", "20px")
-                .attr("fill", "black")
-                .text("Inflow");
-            arrow_legende.push(text);
-
-            for (var i = 0; i < 3; i++) {
-                if (i == 0) var val = 500;
-                if (i == 1) var val = 10000;
-                if (i == 2) var val = 500000;
-                var arrow = svg_legend.append("line")
-                    .attr("x1", 0)
-                    .attr("y1", 10 * shades_blue.length + 170 + i * 20)
-                    .attr("x2", 90)
-                    .attr("y2", 10 * shades_blue.length + 170 + i * 20)
-                    .attr("stroke-width", Math.sqrt(val) / 50)
-                    .attr("stroke", "green")
-                    .style('opacity', '0.5');
-                var text = svg_legend.append("text")
-                    .attr("x", 100)
-                    .attr("y", 10 * shades_blue.length + 170 + i * 23)
-                    .attr("font-size", "15px")
-                    .attr("fill", "black")
-                    .text("" + val);
-                arrow_legende.push(arrow);
-                arrow_legende.push(text);
-            }
-        }
-
-        function modifyLegendColoration(value) {
+        function updateLegendColoration(value) {
 
             switch(value) {
                 case "none":
-                    //Do nothing
-                    fillRectangleLegendGrey();
+                    hideLegendColoration();
                     break;
                 case "GDP":
-                    rectangles_legende[1].text(""+roundNumber(lowest_pib));
-                    rectangles_legende[2].text(""+roundNumber(highest_pib));
-                    fillRectangleLegend(shades_blue);
+                    svg_legend.selectAll(".coloration_card").select('.title').text("Coloration GDP");
+                    svg_legend.selectAll(".coloration_card").select('.lowest').text(""+roundNumber(lowest_pib));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(highest_pib));
+                    svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
+                        .style("fill", function(d, i){
+                            return shades_blue[i] });
+                    showLegendColoration()
                     break;
                 case "migrant_ratio":
-                    rectangles_legende[1].text(""+roundNumber(lowest_ratio));
-                    rectangles_legende[2].text(""+roundNumber(highest_ratio/*/20*/));
-                    fillRectangleLegend(shades_green);
+                    svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Migrant ratio");
+                    svg_legend.selectAll(".coloration_card").select('.lowest').text(""+roundNumber(lowest_ratio));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(highest_ratio/*/20*/));
+                    svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
+                        .style("fill", function(d, i){
+                            return shades_green[i] });
+                    showLegendColoration()
                     break;
                 case "arrived":
-                    rectangles_legende[1].text(""+roundNumber(lowest_arrive));
-                    rectangles_legende[2].text(""+roundNumber(highest_arrive/*/5*/));
-                    fillRectangleLegend(shades_green);
+                    svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Arrived");
+                    svg_legend.selectAll(".coloration_card").select('.lowest').text(""+roundNumber(lowest_arrive));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(highest_arrive/*/5*/));
+                    svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
+                        .style("fill", function(d, i){
+                            return shades_green[i] });
+                    showLegendColoration()
                     break;
                 case "departure":
-                    rectangles_legende[1].text(""+roundNumber(lowest_departure));
-                    rectangles_legende[2].text(""+roundNumber(highest_departure/*/5*/));
-                    fillRectangleLegend(shades_green);
+                    svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Departures");
+                    svg_legend.selectAll(".coloration_card").select('.lowest').text(""+roundNumber(lowest_departure));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(lowest_departure/*/5*/));
+                    svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
+                        .style("fill", function(d, i){
+                            return shades_green[i] });
+                    showLegendColoration()
                     break;
                 default:
-                    //Do nothing
-                    fillRectangleLegendGrey();
+                    hideLegendColoration();
                     break;
-            }
-
-
-            function fillRectangleLegend(shades){
-                for (var i = 3; i < rectangles_legende.length; i++) {
-                    rectangles_legende[i].style("fill", shades[i]);
-                }
-            }
-
-            function fillRectangleLegendGrey(){
-                for (var i = 3; i < rectangles_legende.length; i++) {
-                    rectangles_legende[i].style("fill", "#ccc");
-                }
             }
         }
 
-        function clearLegendColoration() {
-            for (var i = 0; i < rectangles_legende.length; i++) {
-                rectangles_legende[i].remove();
-            }
-            rectangles_legende = new Array();
-            firstDisplayLegendColoration();
+        function hideLegendColoration() {
+            svg_legend.selectAll(".coloration_card")
+                .attr("style", "display: none");
+        }
+
+        function showLegendColoration() {
+            svg_legend.selectAll(".coloration_card")
+                .attr("style", "display: initial");
         }
 
         function clearLegendArrow() {
-            for (var i = 0; i < arrow_legende.length; i++) {
-                arrow_legende[i].remove();
-            }
+            svg_legend.selectAll("g.outflow_card").remove();
+            svg_legend.selectAll("g.inflow_card").remove();
         }
 
         function clearLegend() {
             clearLegendArrow();
-            clearLegendColoration();
+            hideLegendColoration();
         }
 
         function zoomed() {
