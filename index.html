@@ -74,6 +74,8 @@
             stroke-width: 1.25px;
         }
     </style>
+
+
     <style>
         h1 {
             text-align: center !important;
@@ -141,8 +143,8 @@
         <!--<div class="container">-->
             <!-- Example row of columns -->
             <div class="row">
-                <div class="col-md-10">
-                    <h1 id="map-title">Titre pas dynamique</h1>
+                <div class="col-md-12">
+                    <h1 id="map-title">Empty map</h1>
                 </div>
 
             </div>
@@ -253,7 +255,11 @@
             // .translate([0, 0]) 
             // .scale(1) 
             .scaleExtent([1, 8])
-            .on("zoom", zoomed));
+            .on("zoom", function(){
+                map.style("stroke-width", 1.5 / d3.event.transform.k + "px");
+                 // g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")"); // not in d3 v4
+                map.attr("transform", d3.event.transform); // updated for d3 v4));
+            }));
 
         var color = d3.scaleQuantize()
             .range(shades_green);
@@ -388,8 +394,6 @@
                         updateLegendArrow(country_selected);
                         display();
                     });
-
-                updateLegendColoration("none");
             });
         });
 
@@ -426,6 +430,7 @@
         function displayGrey() {
             country_draw.style("fill", "#ccc");
             hideLegendColoration();
+            updateMapTitle();
         }
 
         // Draw PIB colors and legend.
@@ -442,6 +447,7 @@
                 }
             });
             updateLegendColoration(document.getElementById("select_coloration").value);
+            updateMapTitle();
         }
 
         // Draw Migrant-ratio colors and legend.
@@ -458,6 +464,7 @@
                 }
             })
             updateLegendColoration(document.getElementById("select_coloration").value);
+            updateMapTitle();
         }
 
         // Draw Migrant-arrival colors and legend.
@@ -476,6 +483,7 @@
               }
           });
           updateLegendColoration(document.getElementById("select_coloration").value);
+          updateMapTitle();
         }
 
         // Draw Migrant-departure colors and legend.
@@ -494,6 +502,7 @@
                 }
             });
             updateLegendColoration(document.getElementById("select_coloration").value);
+            updateMapTitle();
         }
 
         function displayArcs() {
@@ -825,6 +834,13 @@
 
         
 
+        /*********************************
+        ***
+        *** Legend functions
+        ***
+        *********************************/
+
+
         function initLegendArrow() {
 
             var outflow_card = svg_legend.append("div")
@@ -897,12 +913,22 @@
 
 
         function updateLegendArrow(country){
+            // To be changed !!
+            showLegendArrow()
+        }
 
+        function hideLegendArrow() {
             svg_legend.selectAll("div.outflow_card")
-                .attr("style", "display: initial"); //none
+                .attr("style", "display: none"); 
             svg_legend.selectAll("div.inflow_card")
-                .attr("style", "display: initial"); //none
+                .attr("style", "display: none");
+        }
 
+        function showLegendArrow() {
+            svg_legend.selectAll("div.outflow_card")
+                .attr("style", "display: initial"); 
+            svg_legend.selectAll("div.inflow_card")
+                .attr("style", "display: initial"); 
         }
 
 
@@ -918,7 +944,6 @@
                 .attr("height","200")
                 .attr("width","200");
 
-
             var lowest = coloration_card_svg.append("text") //Lowest (at the top)
                 .attr("x", 30)
                 .attr("y", 10)
@@ -929,7 +954,7 @@
 
             var highest = coloration_card_svg.append("text") //Highest (at the bottom)
                 .attr("x", 30)
-                .attr("y", 10*shades_blue.length +10)
+                .attr("y", 10*shades_blue.length)
                 .attr("class", "highest")
                 .attr("font-size", "15px")
                 .attr("fill", "black")
@@ -941,7 +966,7 @@
                     .attr("y", 10 * i)
                     .attr("class", "rectangle")
                     .attr("width", 20)
-                    .attr("height", 20)
+                    .attr("height", 10)
                     .style("fill", "#ccc");
             }
         }
@@ -982,7 +1007,7 @@
                 case "departure":
                     svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Departures");
                     svg_legend.selectAll(".coloration_card").select('.lowest').text(""+roundNumber(lowest_departure));
-                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(lowest_departure/*/5*/));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(highest_departure/*/5*/));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function(d, i){
                             return shades_green[i] });
@@ -997,7 +1022,6 @@
         function hideLegendColoration() {
             svg_legend.selectAll(".coloration_card")
                 .attr("style", "display: none");
-
         }
 
         function showLegendColoration() {
@@ -1005,21 +1029,43 @@
                 .attr("style", "display: initial");
         }
 
-        function clearLegendArrow() {
-            svg_legend.selectAll("g.outflow_card").remove();
-            svg_legend.selectAll("g.inflow_card").remove();
-        }
-
         function clearLegend() {
-            clearLegendArrow();
+            hideLegendArrow()
             hideLegendColoration();
         }
 
-        function zoomed() {
-            map.style("stroke-width", 1.5 / d3.event.transform.k + "px");
-            // g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")"); // not in d3 v4
-            map.attr("transform", d3.event.transform); // updated for d3 v4
+
+        function updateMapTitle(){
+            min_selected_year;
+            max_selected_year;
+
+            var title = ""
+
+            switch (document.getElementById("select_coloration").value) {
+                case "none":
+                    title = "Empty map"
+                    break;
+                case "GDP": 
+                    title = "GDP per country from " + min_selected_year + " to " + max_selected_year;
+                    break;
+                case "migrant_ratio":
+                    title = "Immigration/emigration ratio from " + min_selected_year + " to " + max_selected_year;
+                    break;
+                case "arrived":
+                    title = "Most attractive countries from " + min_selected_year + " to " + max_selected_year;
+                    break;
+                case "departure":
+                    title = "Most repulsive countries from " + min_selected_year + " to " + max_selected_year;
+                    break;
+                default:
+                    title = "Empty map"
+            }
+
+            d3.select("#map-title").text(title);
         }
+        updateMapTitle();
+
+
     </script>
 
     <!-- Bootstrap core JavaScript
