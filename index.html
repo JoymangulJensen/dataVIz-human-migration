@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 
@@ -91,101 +90,78 @@
 </head>
 
 <body>
-    <!--<nav class="navbar navbar-expand-lg navbar-light bg-light"> 
-
-        <a class="navbar-brand" href="#">Titre</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
-            </li>
-            <li class="nav-item">
-                <span class="nav-link" onclick="reset()">Reset</span>
-            </li>
-        </ul>
-    </div>
-            
-    </nav>-->
-
-
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">Migration flows</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand" href="#">Migration flows</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href='#' onclick="reset()">Reset</a>
-          </li>
-        </ul>
-        <form class="form-inline">
-          <div class="form-row">
-            <div class="col-4">
-                <!---->
-                <div><div id="slider_d3"></div></div>
-            </div>
-          </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href='#' onclick="reset()">Reset</a>
+                </li>
+            </ul>
+            <form class="form-inline">
+                <div class="form-row">
+                    <div class="col-4">
+                        <!---->
+                        <div>
+                            <div id="slider_d3"></div>
+                        </div>
+                    </div>
+                </div>
 
-          <div class="form-row align-items-center">
-            <div class="col-4">
-              <select class="form-control" onchange="display()" id="select_coloration">
+                <div class="form-row align-items-center">
+                    <div class="col-4">
+                        <select class="form-control" onchange="display()" id="select_coloration">
                 <option value="none" selected="">No coloration</option>
                 <option value="GDP">GDP</option>
                 <option value="migrant_ratio" onchange="displayRatio()">Migrant-ratio</option>
                 <option value="arrived" ="displayArrive()">Arrived</option>
                 <option value="departure" onchange="displayDeparture()">Departure</option>
               </select>
-            </div>
-          </div>
-        </form>
-      </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </nav>
 
+    <form>
 
-
-    
-
-<form>
-    
-</form>
+    </form>
 
 
 
     <main role="main">
 
         <!--<div class="container">-->
-            <!-- Example row of columns -->
-            <div class="row">
-                <div class="col-md-10">
-                    <h1 id="map-title">Ceci est un titre</h1>
-                </div>
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="col-md-10">
+                <h1 id="map-title">Ceci est un titre</h1>
             </div>
-            <div class="row" >
-                <div class="col-md-3 card" >
-                    <div class="card-body">
-                        <h2 class="card-title">Legend</h2>
-                        <p class="card-text" id="legend_d3"></p>
-                    </div>
-
-
-                    <div ></div>
-                </div>
-                <div class="col-md-8">
-                    <div class="pull pull-right" id="world_map_graph_d3"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 card">
+                <div class="card-body">
+                    <h2 class="card-title">Legend</h2>
+                    <p class="card-text" id="legend_d3"></p>
                 </div>
 
+
+                <div></div>
+            </div>
+            <div class="col-md-8">
+                <div class="pull pull-right" id="world_map_graph_d3"></div>
             </div>
 
-            <hr>
+        </div>
+
+        <hr>
 
         </div>
         <!-- /container -->
@@ -196,10 +172,7 @@
         <p align="center">&copy; Master 2 Data Science 2017</p>
     </footer>
 
-
     <script>
-
-
         var width = 960, // 960,
             height = 600; //580;
 
@@ -231,12 +204,6 @@
         var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"]
         // Shades of light green to saturated green.
         var shades_green = ["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"]
-
-
-
-
-        
-       
 
         var svg = d3.select("#world_map_graph_d3")
             .append("svg")
@@ -270,9 +237,6 @@
         var arcs = map.append("g")
             .attr("class", "arcs");
 
-
-
-
         var projection = d3.geoMercator()
             .scale(width / 2 / Math.PI - 10)
             .translate([width / 2, height / 2]);
@@ -295,10 +259,6 @@
 
         var color = d3.scaleQuantize()
             .range(shades_green);
-
-
-
-       
 
         double_slider.append("line")
             .attr("class", "track")
@@ -378,12 +338,6 @@
             setHandle2(max_selected_year);
         }
 
-
-
-
-
-
-
         d3.csv("data/pib_by_country.csv", function(data) {
             pib_data = data;
         });
@@ -438,19 +392,14 @@
             });
         });
 
-
         firstDisplayLegendColoration();
 
-
-
-
-
         function display() {
-            if(country_selected){
-              displayArcs();
+            if (country_selected) {
+                displayArcs();
             }
 
-            switch(document.getElementById("select_coloration").value) {
+            switch (document.getElementById("select_coloration").value) {
                 case "none":
                     displayGrey()
                     break;
@@ -471,7 +420,7 @@
             }
         }
 
-        function displayGrey(){
+        function displayGrey() {
             country_draw.style("fill", "#ccc");
             clearLegendColoration();
         }
@@ -479,11 +428,11 @@
         // Draw PIB colors and legend.
         function displayPib() {
             color = d3.scaleQuantize()
-                    .range(shades_blue)
-                    .domain([lowest_pib, highest_pib]);
+                .range(shades_blue)
+                .domain([lowest_pib, highest_pib]);
             country_draw.style("fill", function(d) {
                 var pib = d.pib.average;
-                if (( country_selected && (( country_selected.migration.arrive.sommes[d.id] ) || country_selected.migration.departure.sommes[d.id] ) || !country_selected ) && pib )  {
+                if ((country_selected && ((country_selected.migration.arrive.sommes[d.id]) || country_selected.migration.departure.sommes[d.id]) || !country_selected) && pib) {
                     return color(pib);
                 } else {
                     return "#ccc"; // #ccc = "grey"
@@ -495,11 +444,11 @@
         // Draw Migrant-ratio colors and legend.
         function displayRatio() {
             color = d3.scaleQuantize()
-                    .range(shades_green)
-                    .domain([lowest_ratio, highest_ratio/20]);
+                .range(shades_green)
+                .domain([lowest_ratio, highest_ratio / 20]);
             country_draw.style("fill", function(d) {
                 var ratio = d.migration.ratio;
-                if ((country_selected && ((country_selected.migration.arrive.sommes[d.id])||country_selected.migration.departure.sommes[d.id]) || !country_selected)&&ratio) {
+                if ((country_selected && ((country_selected.migration.arrive.sommes[d.id]) || country_selected.migration.departure.sommes[d.id]) || !country_selected) && ratio) {
                     return color(ratio);
                 } else {
                     return "#ccc"; // #ccc = "grey"
@@ -511,31 +460,31 @@
         // Draw Migrant-arrival colors and legend.
         function displayArrive() {
 
-          color = d3.scaleQuantize()
-              .range(shades_green)
-              .domain([lowest_arrive, highest_arrive/5]);
+            color = d3.scaleQuantize()
+                .range(shades_green)
+                .domain([lowest_arrive, highest_arrive / 5]);
 
-          country_draw.style("fill", function(d) {
-              var migration_number = d.migration.departure.somme;
-              if (( country_selected && ((country_selected.migration.arrive.sommes[d.id])||country_selected.migration.departure.sommes[d.id]) || !country_selected) && migration_number) {
-                  return color(migration_number);
-              } else {
-                  return "#ccc";
-              }
-          });
-          modifyLegendColoration(document.getElementById("select_coloration").value);
+            country_draw.style("fill", function(d) {
+                var migration_number = d.migration.departure.somme;
+                if ((country_selected && ((country_selected.migration.arrive.sommes[d.id]) || country_selected.migration.departure.sommes[d.id]) || !country_selected) && migration_number) {
+                    return color(migration_number);
+                } else {
+                    return "#ccc";
+                }
+            });
+            modifyLegendColoration(document.getElementById("select_coloration").value);
         }
 
         // Draw Migrant-departure colors and legend.
         function displayDeparture() {
 
-          color = d3.scaleQuantize()
-              .range(shades_green)
-              .domain([lowest_departure, highest_departure/5]);
+            color = d3.scaleQuantize()
+                .range(shades_green)
+                .domain([lowest_departure, highest_departure / 5]);
 
             country_draw.style("fill", function(d) {
                 var migration_number = d.migration.departure.somme;
-                if (( country_selected && ((country_selected.migration.arrive.sommes[d.id])||country_selected.migration.departure.sommes[d.id]) || !country_selected) && migration_number) {
+                if ((country_selected && ((country_selected.migration.arrive.sommes[d.id]) || country_selected.migration.departure.sommes[d.id]) || !country_selected) && migration_number) {
                     return color(migration_number);
                 } else {
                     return "#ccc";
@@ -591,7 +540,6 @@
                         dr = Math.sqrt(dx * dx + dy * dy) * bend;
                     return "M" + d['target'][0] + "," + d['target'][1] + "A" + dr + "," + dr + " 0 0,1 " + d['source'][0] + "," + d['source'][1];
                 });
-
         }
 
         function lngLatToArc(d) {
@@ -628,8 +576,8 @@
             feedMigrationData();
             feedSelectedMigrationData();
             feedSelectedAveragePib();
-            
-            switch(document.getElementById("select_coloration").value) {
+
+            switch (document.getElementById("select_coloration").value) {
                 case "none":
                     break;
                 default:
@@ -651,6 +599,7 @@
             country_draw.style("fill", "#ccc");
             arcs.remove();
             clearLegend();
+            document.getElementById("select_coloration").selectedIndex = "none";
         }
 
 
@@ -896,7 +845,7 @@
             rectangles_legende.push(lowest);
             var highest = svg_legend.append("text") //Highest (at the bottom)
                 .attr("x", 30)
-                .attr("y", 40+10*shades_blue.length)
+                .attr("y", 40 + 10 * shades_blue.length)
                 .attr("font-size", "15px")
                 .attr("fill", "black")
                 .text("");
@@ -978,29 +927,29 @@
 
         function modifyLegendColoration(value) {
 
-            switch(value) {
+            switch (value) {
                 case "none":
                     //Do nothing
                     fillRectangleLegendGrey();
                     break;
                 case "GDP":
-                    rectangles_legende[1].text(""+roundNumber(lowest_pib));
-                    rectangles_legende[2].text(""+roundNumber(highest_pib));
+                    rectangles_legende[1].text("" + roundNumber(lowest_pib));
+                    rectangles_legende[2].text("" + roundNumber(highest_pib));
                     fillRectangleLegend(shades_blue);
                     break;
                 case "migrant_ratio":
-                    rectangles_legende[1].text(""+roundNumber(lowest_ratio));
-                    rectangles_legende[2].text(""+roundNumber(highest_ratio/*/20*/));
+                    rectangles_legende[1].text("" + roundNumber(lowest_ratio));
+                    rectangles_legende[2].text("" + roundNumber(highest_ratio /*/20*/ ));
                     fillRectangleLegend(shades_green);
                     break;
                 case "arrived":
-                    rectangles_legende[1].text(""+roundNumber(lowest_arrive));
-                    rectangles_legende[2].text(""+roundNumber(highest_arrive/*/5*/));
+                    rectangles_legende[1].text("" + roundNumber(lowest_arrive));
+                    rectangles_legende[2].text("" + roundNumber(highest_arrive /*/5*/ ));
                     fillRectangleLegend(shades_green);
                     break;
                 case "departure":
-                    rectangles_legende[1].text(""+roundNumber(lowest_departure));
-                    rectangles_legende[2].text(""+roundNumber(highest_departure/*/5*/));
+                    rectangles_legende[1].text("" + roundNumber(lowest_departure));
+                    rectangles_legende[2].text("" + roundNumber(highest_departure /*/5*/ ));
                     fillRectangleLegend(shades_green);
                     break;
                 default:
@@ -1010,13 +959,13 @@
             }
 
 
-            function fillRectangleLegend(shades){
+            function fillRectangleLegend(shades) {
                 for (var i = 3; i < rectangles_legende.length; i++) {
                     rectangles_legende[i].style("fill", shades[i]);
                 }
             }
 
-            function fillRectangleLegendGrey(){
+            function fillRectangleLegendGrey() {
                 for (var i = 3; i < rectangles_legende.length; i++) {
                     rectangles_legende[i].style("fill", "#ccc");
                 }
@@ -1055,7 +1004,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
-    
+
 </body>
 
 </html>
