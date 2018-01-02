@@ -13,6 +13,7 @@
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
+
     <!-- Custom styles for this template -->
     <link href="css/style.css" rel="stylesheet">
 
@@ -90,46 +91,95 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-dark fixed-top bg-dark"> 
-        <ul class="">
-            <a class="navbar-brand" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
-            <a onclick="reset()" class="navbar-brand" href="#">Reset</a>
-            <!--<a onclick="displayRatio()" class="navbar-brand selected" href="#">Migrant-ratio</a>-->
-            <!--<a onclick="displayPib()" class="navbar-brand" href="#">GDP</a>-->
-            <!--<a onclick="displayHelp()" class="navbar-brand" href="#">Help</a>-->
+    <!--<nav class="navbar navbar-expand-lg navbar-light bg-light"> 
 
+        <a class="navbar-brand" href="#">Titre</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
+            </li>
+            <li class="nav-item">
+                <span class="nav-link" onclick="reset()">Reset</span>
+            </li>
         </ul>
-            <div id="slider_d3"></div>
+    </div>
+            
+    </nav>-->
 
-            <div>
-                Select a coloration here:
-                <select id="select_coloration" onchange="selectColoration()">
-                    <option value="none">None</option>
-                    <option value="GDP">GDP</option>
-                    <option value="migrant_ratio" onchange="displayRatio()">Migrant-ratio</option>
-                    <option value="arrived" ="displayArrive()">Arrived</option>
-                    <option value="departure" onchange="displayDeparture()">Departure</option>
-                </select>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">Migration flows</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href='#' onclick="reset()">Reset</a>
+          </li>
+        </ul>
+        <form class="form-inline">
+          <div class="form-row">
+            <div class="col-4">
+                <!---->
+                <div><div id="slider_d3"></div></div>
             </div>
+          </div>
+
+          <div class="form-row align-items-center">
+            <div class="col-4">
+              <select class="form-control" onchange="display()" id="select_coloration">
+                <option value="none" selected="">No coloration</option>
+                <option value="GDP">GDP</option>
+                <option value="migrant_ratio" onchange="displayRatio()">Migrant-ratio</option>
+                <option value="arrived" ="displayArrive()">Arrived</option>
+                <option value="departure" onchange="displayDeparture()">Departure</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
     </nav>
-    <br/><br/><br/>
+
+
+
+    
+
+<form>
+    
+</form>
+
+
+
     <main role="main">
 
-        <div class="container">
+        <!--<div class="container">-->
             <!-- Example row of columns -->
             <div class="row">
                 <div class="col-md-10">
-                    <h1 id="title"></h1>
+                    <h1 id="map-title">Ceci est un titre</h1>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-2">
-                    <h1 class="pull pull-right">
-                        Legend
-                    </h1>
-                    <div id="legend_d3"></div>
+            <div class="row" >
+                <div class="col-md-3 card" >
+                    <div class="card-body">
+                        <h2 class="card-title">Legend</h2>
+                        <p class="card-text" id="legend_d3"></p>
+                    </div>
+
+
+                    <div ></div>
                 </div>
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <div class="pull pull-right" id="world_map_graph_d3"></div>
                 </div>
 
@@ -142,42 +192,12 @@
 
     </main>
 
-    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
     <footer class="container">
         <p align="center">&copy; Master 2 Data Science 2017</p>
     </footer>
 
 
     <script>
-
-
-        function selectColoration(){
-            var x = document.getElementById("select_coloration").value;
-            switch(x) {
-                case "none":
-                    displayGrey()
-                    break;
-                case "GDP":
-                    displayPib();
-                    break;
-                case "migrant_ratio":
-                    displayRatio()
-                    break;
-                case "arrived":
-                    displayArrive();
-                    break;
-                case "departure":
-                    displayDeparture()
-                    break;
-                default:
-                    displayGrey()
-            }   
-
-
-
-
-            console.log(x)
-        }
 
 
         var width = 960, // 960,
@@ -204,25 +224,19 @@
 
         var country_selected;
 
-        var pib_selected = false,
-            migrant_selected = false,
-            arrive_selected = false,
-            departure_selected = false;
-
-        var zoom = d3.zoom()
-            // no longer in d3 v4 - zoom initialises with zoomIdentity, so it's already at origin
-            // .translate([0, 0]) 
-            // .scale(1) 
-            .scaleExtent([1, 8])
-            .on("zoom", zoomed);
+        var rectangles_legende = new Array();
+        var arrow_legende = new Array();
 
         // Shades of light blue to saturated blue.
         var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"]
         // Shades of light green to saturated green.
         var shades_green = ["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"]
 
-        var color = d3.scaleQuantize()
-            .range(shades_green);
+
+
+
+        
+       
 
         var svg = d3.select("#world_map_graph_d3")
             .append("svg")
@@ -231,28 +245,33 @@
 
         var svg_slider = d3.select("#slider_d3")
             .append("svg")
-            .attr("width", width)
+            .attr("width", 250)
             .attr("height", 50);
 
         var svg_legend = d3.select("#legend_d3")
             .append("svg")
             .attr("width", 200)
-            .attr("height", height);
-
-        var rectangles_legende = new Array();
-        var arrow_legende = new Array();
-        
-        svg.call(zoom);
+            .attr("height", 400);
 
         var map = svg.append('g')
             .attr("class", "map")
-            .attr('transform', 'translate(0, 00)')
+            .attr('transform', 'translate(0, 0)')
 
         var tooltip = d3.select('body').append('div')
             .attr('class', 'hidden tooltip');
 
         var tooltip_arrow = d3.select('body').append('div')
             .attr('class', 'hidden tooltip');
+
+        var double_slider = svg_slider.append("g")
+            .attr("class", "slider")
+            .attr("transform", "translate(" + 10 + "," + 20 + ")");
+
+        var arcs = map.append("g")
+            .attr("class", "arcs");
+
+
+
 
         var projection = d3.geoMercator()
             .scale(width / 2 / Math.PI - 10)
@@ -261,15 +280,25 @@
         var path = d3.geoPath() // d3.geo.path avec d3 version 3
             .projection(projection);
 
-        var slider_width = width - 70,
+        var slider_width = 200,
             x_slider = d3.scaleLinear()
             .domain([MIN_YEAR, MAX_YEAR])
             .range([0, slider_width])
             .clamp(true);
 
-        var double_slider = svg_slider.append("g")
-            .attr("class", "slider")
-            .attr("transform", "translate(" + 30 + "," + 15 + ")");
+        svg.call(d3.zoom()
+            // no longer in d3 v4 - zoom initialises with zoomIdentity, so it's already at origin
+            // .translate([0, 0]) 
+            // .scale(1) 
+            .scaleExtent([1, 8])
+            .on("zoom", zoomed));
+
+        var color = d3.scaleQuantize()
+            .range(shades_green);
+
+
+
+       
 
         double_slider.append("line")
             .attr("class", "track")
@@ -305,6 +334,7 @@
             .enter().append("text")
             .attr("x", x_slider)
             .attr("text-anchor", "middle")
+            .style('fill', 'white')
             .text(function(d) {
                 return d;
             });
@@ -348,8 +378,11 @@
             setHandle2(max_selected_year);
         }
 
-        var arcs = map.append("g")
-            .attr("class", "arcs");
+
+
+
+
+
 
         d3.csv("data/pib_by_country.csv", function(data) {
             pib_data = data;
@@ -379,7 +412,7 @@
 
                         tooltip
                             .classed('hidden', false)
-                            .attr('style', 'left:' + (mouse[0] + 650) + 'px; top:' + (mouse[1] + 0) + 'px')
+                            .attr('style', 'left:' + (mouse[0] + 50) + 'px; top:' + (mouse[1] + 0) + 'px')
                             .html(function() {
                                 if (country.properties.name) {
                                     return country.properties.name +
@@ -405,37 +438,46 @@
             });
         });
 
+
         firstDisplayLegendColoration();
+
+
+
+
 
         function display() {
             if(country_selected){
               displayArcs();
             }
-            if (pib_selected) {
-                displayPib();
-            } else if (migrant_selected) {
-                displayRatio();
-            }else if (arrive_selected){
-                displayArrive();
-            }else if (departure_selected){
-                displayDeparture();
+
+            switch(document.getElementById("select_coloration").value) {
+                case "none":
+                    displayGrey()
+                    break;
+                case "GDP":
+                    displayPib();
+                    break;
+                case "migrant_ratio":
+                    displayRatio()
+                    break;
+                case "arrived":
+                    displayArrive();
+                    break;
+                case "departure":
+                    displayDeparture()
+                    break;
+                default:
+                    displayGrey()
             }
         }
 
         function displayGrey(){
-            migrant_selected = false;
-            pib_selected = false;
-            departure_selected = false;
-            arrive_selected = false;
             country_draw.style("fill", "#ccc");
             clearLegendColoration();
         }
 
+        // Draw PIB colors and legend.
         function displayPib() {
-            migrant_selected = false;
-            pib_selected = true;
-            departure_selected = false;
-            arrive_selected = false;
             color = d3.scaleQuantize()
                     .range(shades_blue)
                     .domain([lowest_pib, highest_pib]);
@@ -447,14 +489,11 @@
                     return "#ccc"; // #ccc = "grey"
                 }
             });
-            modifyLegendColoration();
+            modifyLegendColoration(document.getElementById("select_coloration").value);
         }
 
+        // Draw Migrant-ratio colors and legend.
         function displayRatio() {
-            migrant_selected = true;
-            pib_selected = false;
-            departure_selected = false;
-            arrive_selected = false;
             color = d3.scaleQuantize()
                     .range(shades_green)
                     .domain([lowest_ratio, highest_ratio/20]);
@@ -466,14 +505,11 @@
                     return "#ccc"; // #ccc = "grey"
                 }
             })
-            modifyLegendColoration();
+            modifyLegendColoration(document.getElementById("select_coloration").value);
         }
 
+        // Draw Migrant-arrival colors and legend.
         function displayArrive() {
-          migrant_selected = false;
-          pib_selected = false;
-          departure_selected = false;
-          arrive_selected = true;
 
           color = d3.scaleQuantize()
               .range(shades_green)
@@ -487,14 +523,11 @@
                   return "#ccc";
               }
           });
-          modifyLegendColoration();
+          modifyLegendColoration(document.getElementById("select_coloration").value);
         }
 
+        // Draw Migrant-departure colors and legend.
         function displayDeparture() {
-          migrant_selected = false;
-          pib_selected = false;
-          departure_selected = true;
-          arrive_selected = false;
 
           color = d3.scaleQuantize()
               .range(shades_green)
@@ -508,8 +541,9 @@
                     return "#ccc";
                 }
             });
-            modifyLegendColoration();
+            modifyLegendColoration(document.getElementById("select_coloration").value);
         }
+
         function displayArcs() {
             arcs.remove();
             arcs = map.append("g")
@@ -594,9 +628,14 @@
             feedMigrationData();
             feedSelectedMigrationData();
             feedSelectedAveragePib();
-            if (migrant_selected || pib_selected || arrive_selected |- departure_selected) {
-              modifyLegendColoration();
+            
+            switch(document.getElementById("select_coloration").value) {
+                case "none":
+                    break;
+                default:
+                    modifyLegendColoration(document.getElementById("select_coloration").value);
             }
+
             display();
         }
 
@@ -607,8 +646,7 @@
             setRange(MIN_YEAR, MAX_YEAR);
             feedSelectedMigrationData();
             feedSelectedAveragePib();
-            migrant_selected = false;
-            pib_selected = false;
+
             country_selected = null;
             country_draw.style("fill", "#ccc");
             arcs.remove();
@@ -842,32 +880,32 @@
         }
 
         function firstDisplayLegendColoration() {
-            var text = svg_legend.append("text")
+            var title = svg_legend.append("text")
                 .attr("x", 0)
                 .attr("y", 20)
                 .attr("font-size", "20px")
                 .attr("fill", "black")
                 .text("Coloration");
-            rectangles_legende.push(text);
-            var text = svg_legend.append("text")
-                .attr("x", 70)
-                .attr("y", 45)
+            rectangles_legende.push(title);
+            var lowest = svg_legend.append("text") //Lowest (at the top)
+                .attr("x", 30)
+                .attr("y", 40)
                 .attr("font-size", "15px")
                 .attr("fill", "black")
                 .text("");
-            rectangles_legende.push(text);
-            var text = svg_legend.append("text")
-                .attr("x", 70)
-                .attr("y", 25+20*shades_blue.length)
+            rectangles_legende.push(lowest);
+            var highest = svg_legend.append("text") //Highest (at the bottom)
+                .attr("x", 30)
+                .attr("y", 40+10*shades_blue.length)
                 .attr("font-size", "15px")
                 .attr("fill", "black")
                 .text("");
-            rectangles_legende.push(text);
+            rectangles_legende.push(highest);
             for (var i = 0; i < shades_blue.length; i++) {
                 var rectangle = svg_legend.append("rect")
                     .attr("x", 0)
-                    .attr("y", 20 * (i) + 30)
-                    .attr("width", 60)
+                    .attr("y", 10 * (i) + 30)
+                    .attr("width", 20)
                     .attr("height", 20)
                     .style("fill", "#ccc");
                 rectangles_legende.push(rectangle);
@@ -878,7 +916,7 @@
 
             var text = svg_legend.append("text")
                 .attr("x", 0)
-                .attr("y", 20 * shades_blue.length + 50)
+                .attr("y", 10 * shades_blue.length + 70)
                 .attr("font-size", "20px")
                 .attr("fill", "red")
                 .text("Outflow");
@@ -890,15 +928,15 @@
                 if (i == 2) var val = 500000;
                 var arrow = svg_legend.append("line")
                     .attr("x1", 0)
-                    .attr("y1", 20 * shades_blue.length + 60 + i * 20)
+                    .attr("y1", 10 * shades_blue.length + 80 + i * 20)
                     .attr("x2", 90)
-                    .attr("y2", 20 * shades_blue.length + 60 + i * 20)
+                    .attr("y2", 10 * shades_blue.length + 80 + i * 20)
                     .attr("stroke-width", Math.sqrt(val) / 50)
                     .attr("stroke", "red")
                     .style('opacity', '0.5');
                 var text = svg_legend.append("text")
                     .attr("x", 100)
-                    .attr("y", 20 * shades_blue.length + 60 + i * 23)
+                    .attr("y", 10 * shades_blue.length + 80 + i * 23)
                     .attr("font-size", "15px")
                     .attr("fill", "black")
                     .text("" + val);
@@ -909,7 +947,7 @@
 
             var text = svg_legend.append("text")
                 .attr("x", 0)
-                .attr("y", 20 * shades_blue.length + 140)
+                .attr("y", 10 * shades_blue.length + 160)
                 .attr("font-size", "20px")
                 .attr("fill", "black")
                 .text("Inflow");
@@ -921,15 +959,15 @@
                 if (i == 2) var val = 500000;
                 var arrow = svg_legend.append("line")
                     .attr("x1", 0)
-                    .attr("y1", 20 * shades_blue.length + 150 + i * 20)
+                    .attr("y1", 10 * shades_blue.length + 170 + i * 20)
                     .attr("x2", 90)
-                    .attr("y2", 20 * shades_blue.length + 150 + i * 20)
+                    .attr("y2", 10 * shades_blue.length + 170 + i * 20)
                     .attr("stroke-width", Math.sqrt(val) / 50)
                     .attr("stroke", "green")
                     .style('opacity', '0.5');
                 var text = svg_legend.append("text")
                     .attr("x", 100)
-                    .attr("y", 20 * shades_blue.length + 150 + i * 23)
+                    .attr("y", 10 * shades_blue.length + 170 + i * 23)
                     .attr("font-size", "15px")
                     .attr("fill", "black")
                     .text("" + val);
@@ -938,33 +976,50 @@
             }
         }
 
-        function modifyLegendColoration() {
-            if(pib_selected){
-              rectangles_legende[1].text(""+roundNumber(lowest_pib));
-              rectangles_legende[2].text(""+roundNumber(highest_pib));
-            } else if(migrant_selected){
-              rectangles_legende[1].text(""+roundNumber(lowest_ratio));
-              rectangles_legende[2].text(""+roundNumber(highest_ratio/*/20*/));
-            } else if(arrive_selected){
-              rectangles_legende[1].text(""+roundNumber(lowest_arrive));
-              rectangles_legende[2].text(""+roundNumber(highest_arrive/*/5*/));
-            } else if(departure_selected){
-              rectangles_legende[1].text(""+roundNumber(lowest_departure));
-              rectangles_legende[2].text(""+roundNumber(highest_departure/*/5*/));
+        function modifyLegendColoration(value) {
+
+            switch(value) {
+                case "none":
+                    //Do nothing
+                    fillRectangleLegendGrey();
+                    break;
+                case "GDP":
+                    rectangles_legende[1].text(""+roundNumber(lowest_pib));
+                    rectangles_legende[2].text(""+roundNumber(highest_pib));
+                    fillRectangleLegend(shades_blue);
+                    break;
+                case "migrant_ratio":
+                    rectangles_legende[1].text(""+roundNumber(lowest_ratio));
+                    rectangles_legende[2].text(""+roundNumber(highest_ratio/*/20*/));
+                    fillRectangleLegend(shades_green);
+                    break;
+                case "arrived":
+                    rectangles_legende[1].text(""+roundNumber(lowest_arrive));
+                    rectangles_legende[2].text(""+roundNumber(highest_arrive/*/5*/));
+                    fillRectangleLegend(shades_green);
+                    break;
+                case "departure":
+                    rectangles_legende[1].text(""+roundNumber(lowest_departure));
+                    rectangles_legende[2].text(""+roundNumber(highest_departure/*/5*/));
+                    fillRectangleLegend(shades_green);
+                    break;
+                default:
+                    //Do nothing
+                    fillRectangleLegendGrey();
+                    break;
             }
 
-            for (var i = 3; i < rectangles_legende.length; i++) {
-                rectangles_legende[i].style("fill", function() {
-                    if (pib_selected) {
-                        return shades_blue[i];
-                    } else if (migrant_selected) {
-                        return shades_green[i];
-                    } else if(arrive_selected || departure_selected) {
-                        return shades_green[i];
-                    }else{
-                        return "#ccc";
-                    }
-                });
+
+            function fillRectangleLegend(shades){
+                for (var i = 3; i < rectangles_legende.length; i++) {
+                    rectangles_legende[i].style("fill", shades[i]);
+                }
+            }
+
+            function fillRectangleLegendGrey(){
+                for (var i = 3; i < rectangles_legende.length; i++) {
+                    rectangles_legende[i].style("fill", "#ccc");
+                }
             }
         }
 
@@ -996,10 +1051,11 @@
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster
+    <!-- Placed at the end of the document so the pages load faster-->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="js/bootstrap.min.js"></script>
-    -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+    
 </body>
 
 </html>
