@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 
@@ -96,15 +97,20 @@
             <!--<a onclick="displayRatio()" class="navbar-brand selected" href="#">Migrant-ratio</a>-->
             <!--<a onclick="displayPib()" class="navbar-brand" href="#">GDP</a>-->
             <!--<a onclick="displayHelp()" class="navbar-brand" href="#">Help</a>-->
+
         </ul>
             <div id="slider_d3"></div>
-            <select>
-                <option>Select a coloration</option>
-                <option onclick="displayPib()">GDP</option>
-                <option onclick="displayRatio()">Migrant-ratio</option>
-                <option onclick="displayArrive()">Arrived</option>
-                <option onclick="displayDeparture()">Departure</option>
-            </select>
+
+            <div>
+                Select a coloration here:
+                <select id="select_coloration" onchange="selectColoration()">
+                    <option value="none">None</option>
+                    <option value="GDP">GDP</option>
+                    <option value="migrant_ratio" onchange="displayRatio()">Migrant-ratio</option>
+                    <option value="arrived" ="displayArrive()">Arrived</option>
+                    <option value="departure" onchange="displayDeparture()">Departure</option>
+                </select>
+            </div>
     </nav>
     <br/><br/><br/>
     <main role="main">
@@ -143,6 +149,37 @@
 
 
     <script>
+
+
+        function selectColoration(){
+            var x = document.getElementById("select_coloration").value;
+            switch(x) {
+                case "none":
+                    displayGrey()
+                    break;
+                case "GDP":
+                    displayPib();
+                    break;
+                case "migrant_ratio":
+                    displayRatio()
+                    break;
+                case "arrived":
+                    displayArrive();
+                    break;
+                case "departure":
+                    displayDeparture()
+                    break;
+                default:
+                    displayGrey()
+            }   
+
+
+
+
+            console.log(x)
+        }
+
+
         var width = 960, // 960,
             height = 600; //580;
 
@@ -383,6 +420,15 @@
             }else if (departure_selected){
                 displayDeparture();
             }
+        }
+
+        function displayGrey(){
+            migrant_selected = false;
+            pib_selected = false;
+            departure_selected = false;
+            arrive_selected = false;
+            country_draw.style("fill", "#ccc");
+            clearLegendColoration();
         }
 
         function displayPib() {
