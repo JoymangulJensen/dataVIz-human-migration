@@ -530,6 +530,7 @@
                 }
 
             }
+
             arcs.selectAll("path")
                 .data(arcdata)
                 .enter()
@@ -550,35 +551,6 @@
                         dr = Math.sqrt(dx * dx + dy * dy) * bend;
                     return "M" + d['target'][0] + "," + d['target'][1] + "A" + dr + "," + dr + " 0 0,1 " + d['source'][0] + "," + d['source'][1];
                 });
-        }
-
-        function lngLatToArc(d) {
-            // If no bend is supplied, then do the plain square root
-            bend = 1.2;
-            // `d[sourceName]` and `d[targetname]` are arrays of `[lng, lat]`
-            // Note, people often put these in lat then lng, but mathematically we want x then y which is `lng,lat`
-            var sourceLngLat = d['source'],
-                targetLngLat = d['target'];
-            if (targetLngLat && sourceLngLat) {
-                var sourceXY = projection(sourceLngLat),
-                    targetXY = projection(targetLngLat);
-                // Uncomment this for testing, useful to see if you have any null lng/lat values
-                // if (!targetXY) console.log(d, targetLngLat, targetXY)
-                var sourceX = sourceXY[0],
-                    sourceY = sourceXY[1];
-                var targetX = targetXY[0],
-                    targetY = targetXY[1];
-                var dx = targetX - sourceX,
-                    dy = targetY - sourceY,
-                    dr = Math.sqrt(dx * dx + dy * dy) * bend;
-                // To avoid a whirlpool effect, make the bend direction consistent regardless of whether the source is east or west of the target
-                var west_of_source = (targetX - sourceX) < 0;
-                if (west_of_source) {
-                    return "M" + targetX + "," + targetY + "A" + dr + "," + dr + " 0 0,1 " + sourceX + "," + sourceY;
-                } else {
-                    return "M0,0,l0,0z";
-                }
-            }
         }
 
         function updateDate() {
@@ -839,6 +811,9 @@
 
 
         function initLegendArrow() {
+            var min = 500,
+                mid = 10000,
+                max = 250000;
 
             var outflow_card = svg_legend.append("div")
                 .attr("class", "outflow_card")
@@ -852,13 +827,16 @@
                 .attr("width", "200");
 
             for (var i = 0; i < 3; i++) {
-
                 var arrow = outflow_card_svg.append("line")
                     .attr("x1", 0)
-                    .attr("y1", i * 20 + 10)
+                    .attr("y1", i * 23 + 10)
                     .attr("x2", 90)
-                    .attr("y2", i * 20 + 10)
-                    .attr("stroke-width", "" + i + 2) // Random value here!
+                    .attr("y2", i * 23 + 10)
+                    .attr("stroke-width", function () {
+                        if (i == 0) return Math.sqrt(min) / 25;
+                        if (i == 1) return Math.sqrt(mid) / 25; // Random value here!
+                        if (i == 2) return Math.sqrt(max) / 25;
+                    })
                     .attr("stroke", "red")
                     .style('opacity', '0.5');
                 var text = outflow_card_svg.append("text")
@@ -866,10 +844,10 @@
                     .attr("y", i * 23 + 15)
                     .attr("font-size", "15px")
                     .attr("fill", "black")
-                    .text(function (d, i) {
-                        if (i == 0) return "random value min";
-                        if (i == 1) return "random value med"; // Random value here!
-                        if (i == 2) return "random value max";
+                    .text(function () {
+                        if (i == 0) return "" + min;
+                        if (i == 1) return "" + mid; // Random value here!
+                        if (i == 2) return "" + max;
                     });
             }
 
@@ -889,10 +867,14 @@
 
                 var arrow = inflow_card_svg.append("line")
                     .attr("x1", 0)
-                    .attr("y1", i * 20 + 10)
+                    .attr("y1", i * 23 + 10)
                     .attr("x2", 90)
-                    .attr("y2", i * 20 + 10)
-                    .attr("stroke-width", "" + i + 2) // Random value here!
+                    .attr("y2", i * 23 + 10)
+                    .attr("stroke-width", function () {
+                        if (i == 0) return Math.sqrt(min) / 25;
+                        if (i == 1) return Math.sqrt(mid) / 25; // Random value here!
+                        if (i == 2) return Math.sqrt(max) / 25;
+                    })
                     .attr("stroke", "green")
                     .style('opacity', '0.5');
                 var text = inflow_card_svg.append("text")
@@ -900,10 +882,10 @@
                     .attr("y", i * 23 + 15)
                     .attr("font-size", "15px")
                     .attr("fill", "black")
-                    .text(function (d, i) {
-                        if (i == 0) return "random value min";
-                        if (i == 1) return "random value med"; // Random value here!
-                        if (i == 2) return "random value max";
+                    .text(function () {
+                        if (i == 0) return "" + min;
+                        if (i == 1) return "" + mid; // Random value here!
+                        if (i == 2) return "" + max;
                     });
             }
         }
