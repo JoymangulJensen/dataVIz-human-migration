@@ -94,9 +94,10 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="#">Migration flows</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
@@ -120,12 +121,12 @@
                 <div class="form-row align-items-center">
                     <div class="col-4">
                         <select class="form-control" onchange="display()" id="select_coloration">
-                <option value="none" selected="">No coloration</option>
-                <option value="GDP">GDP</option>
-                <option value="migrant_ratio" onchange="displayRatio()">Migrant-ratio</option>
-                <option value="arrived" ="displayArrive()">Arrived</option>
-                <option value="departure" onchange="displayDeparture()">Departure</option>
-              </select>
+                            <option value="none" selected="">No coloration</option>
+                            <option value="GDP">GDP</option>
+                            <option value="migrant_ratio" onchange="displayRatio()">Migrant-ratio</option>
+                            <option value="arrived"="displayArrive()">Arrived</option>
+                            <option value="departure" onchange="displayDeparture()">Departure</option>
+                        </select>
                     </div>
                 </div>
             </form>
@@ -147,7 +148,7 @@
                     <h1 id="map-title">Empty map</h1>
                 </div>
             </div>
-        
+
             <div class="row">
                 <div class="col-md-3 card">
                     <div class="card-header">
@@ -242,18 +243,18 @@
 
         var slider_width = 200,
             x_slider = d3.scaleLinear()
-            .domain([MIN_YEAR, MAX_YEAR])
-            .range([0, slider_width])
-            .clamp(true);
+                .domain([MIN_YEAR, MAX_YEAR])
+                .range([0, slider_width])
+                .clamp(true);
 
         svg.call(d3.zoom()
             // no longer in d3 v4 - zoom initialises with zoomIdentity, so it's already at origin
             // .translate([0, 0]) 
             // .scale(1) 
             .scaleExtent([1, 8])
-            .on("zoom", function(){
+            .on("zoom", function () {
                 map.style("stroke-width", 1.5 / d3.event.transform.k + "px");
-                 // g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")"); // not in d3 v4
+                // g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")"); // not in d3 v4
                 map.attr("transform", d3.event.transform); // updated for d3 v4));
             }));
 
@@ -264,19 +265,19 @@
             .attr("class", "track")
             .attr("x1", x_slider.range()[0])
             .attr("x2", x_slider.range()[1])
-            .select(function() {
+            .select(function () {
                 return this.parentNode.appendChild(this.cloneNode(true));
             })
             .attr("class", "track-inset")
-            .select(function() {
+            .select(function () {
                 return this.parentNode.appendChild(this.cloneNode(true));
             })
             .attr("class", "track-overlay")
             .call(d3.drag()
-                .on("start.interrupt", function() {
+                .on("start.interrupt", function () {
                     double_slider.interrupt();
                 })
-                .on("start drag", function() {
+                .on("start drag", function () {
                     var distance1 = Math.abs(x_slider.invert(handle1.attr("cx")) - x_slider.invert(d3.event.x))
                     var distance2 = Math.abs(x_slider.invert(handle2.attr("cx")) - x_slider.invert(d3.event.x))
                     if (distance1 < distance2) {
@@ -295,7 +296,7 @@
             .attr("x", x_slider)
             .attr("text-anchor", "middle")
             .style('fill', 'white')
-            .text(function(d) {
+            .text(function (d) {
                 return d;
             });
 
@@ -338,12 +339,12 @@
             setHandle2(max_selected_year);
         }
 
-        d3.csv("data/pib_by_country.csv", function(data) {
+        d3.csv("data/pib_by_country.csv", function (data) {
             pib_data = data;
         });
 
-        d3.json("data/world.json", function(json) {
-            d3.csv("data/migration_2000_2015.csv", function(data) {
+        d3.json("data/world.json", function (json) {
+            d3.csv("data/migration_2000_2015.csv", function (data) {
                 migration_data = data;
                 map_data = json.features; // list of all countries : {id: "AFG", migration: {…}, pib: {..}}
 
@@ -360,15 +361,15 @@
                     .append("path")
                     .attr("d", path)
                     .style("fill", "#ccc") // At the start, display nothing (for the moment)
-                    .on('mousemove', function(country) {
-                        var mouse = d3.mouse(map.node()).map(function(country) {
+                    .on('mousemove', function (country) {
+                        var mouse = d3.mouse(map.node()).map(function (country) {
                             return parseInt(country);
                         });
 
                         tooltip
                             .classed('hidden', false)
                             .attr('style', 'left:' + (mouse[0] + 50) + 'px; top:' + (mouse[1] + 0) + 'px')
-                            .html(function() {
+                            .html(function () {
                                 if (country.properties.name) {
                                     return country.properties.name +
                                         "<br> Selected years: " + country.migration.min_selected_year + "-" + country.migration.max_selected_year +
@@ -382,10 +383,10 @@
                             })
 
                     })
-                    .on('mouseout', function() {
+                    .on('mouseout', function () {
                         tooltip.classed('hidden', true);
                     })
-                    .on('click', function(country) { // Click on a country to see migration.
+                    .on('click', function (country) { // Click on a country to see migration.
                         country_selected = country;
                         updateLegendArrow(country_selected);
                         display();
@@ -398,7 +399,7 @@
 
 
         function display() {
-            switch(document.getElementById("select_coloration").value) {
+            switch (document.getElementById("select_coloration").value) {
                 case "none":
                     displayGrey()
                     break;
@@ -418,8 +419,8 @@
                     displayGrey()
             }
 
-            if(country_selected){
-              displayArcs();
+            if (country_selected) {
+                displayArcs();
             }
         }
 
@@ -434,9 +435,9 @@
             color = d3.scaleQuantize()
                 .range(shades_blue)
                 .domain([lowest_pib, highest_pib]);
-            country_draw.style("fill", function(d) {
+            country_draw.style("fill", function (d) {
                 var pib = d.pib.average;
-                if ( pib )  {
+                if (pib) {
                     return color(pib);
                 } else {
                     return "#ccc"; // #ccc = "grey"
@@ -451,7 +452,7 @@
             color = d3.scaleQuantize()
                 .range(shades_green)
                 .domain([lowest_ratio, highest_ratio / 20]);
-            country_draw.style("fill", function(d) {
+            country_draw.style("fill", function (d) {
                 var ratio = d.migration.ratio;
                 if (ratio) {
                     return color(ratio);
@@ -466,20 +467,20 @@
         // Draw Migrant-arrival colors and legend.
         function displayArrive() {
 
-          color = d3.scaleQuantize()
-              .range(shades_green)
-              .domain([lowest_arrive, highest_arrive/5]);
+            color = d3.scaleQuantize()
+                .range(shades_green)
+                .domain([lowest_arrive, highest_arrive / 5]);
 
-          country_draw.style("fill", function(d) {
-              var migration_number = d.migration.departure.somme;
-              if (migration_number) {
-                  return color(migration_number);
-              } else {
-                  return "#ccc";
-              }
-          });
-          updateLegendColoration(document.getElementById("select_coloration").value);
-          updateMapTitle();
+            country_draw.style("fill", function (d) {
+                var migration_number = d.migration.departure.somme;
+                if (migration_number) {
+                    return color(migration_number);
+                } else {
+                    return "#ccc";
+                }
+            });
+            updateLegendColoration(document.getElementById("select_coloration").value);
+            updateMapTitle();
         }
 
         // Draw Migrant-departure colors and legend.
@@ -489,7 +490,7 @@
                 .range(shades_green)
                 .domain([lowest_departure, highest_departure / 5]);
 
-            country_draw.style("fill", function(d) {
+            country_draw.style("fill", function (d) {
                 var migration_number = d.migration.departure.somme;
                 if (migration_number) {
                     return color(migration_number);
@@ -533,16 +534,16 @@
                 .data(arcdata)
                 .enter()
                 .append("path")
-                .style("stroke-width", function(d) {
+                .style("stroke-width", function (d) {
                     return d.size;
                 })
-                .style("stroke", function(d) {
+                .style("stroke", function (d) {
                     if (d.type == "inflow")
                         return "green";
                     else
                         return 'red';
                 })
-                .attr('d', function(d) {
+                .attr('d', function (d) {
                     bend = 1.2;
                     var dx = d['target'][0] - d['source'][0],
                         dy = d['target'][1] - d['source'][1],
@@ -828,7 +829,7 @@
             return n
         }
 
-        
+
 
         /*********************************
         ***
@@ -847,29 +848,29 @@
                 .text("Outflow");
 
             var outflow_card_svg = outflow_card.append("svg")
-                .attr("height","100")
-                .attr("width","200");
+                .attr("height", "100")
+                .attr("width", "200");
 
             for (var i = 0; i < 3; i++) {
-                
+
                 var arrow = outflow_card_svg.append("line")
                     .attr("x1", 0)
-                    .attr("y1", i * 20 +10)
+                    .attr("y1", i * 20 + 10)
                     .attr("x2", 90)
-                    .attr("y2", i * 20 +10)
-                    .attr("stroke-width", "" + i+2) // Random value here!
+                    .attr("y2", i * 20 + 10)
+                    .attr("stroke-width", "" + i + 2) // Random value here!
                     .attr("stroke", "red")
                     .style('opacity', '0.5');
                 var text = outflow_card_svg.append("text")
                     .attr("x", 100)
-                    .attr("y", i * 23 + 15 )
+                    .attr("y", i * 23 + 15)
                     .attr("font-size", "15px")
                     .attr("fill", "black")
-                    .text(function(d, i){
+                    .text(function (d, i) {
                         if (i == 0) return "random value min";
                         if (i == 1) return "random value med"; // Random value here!
                         if (i == 2) return "random value max";
-                        });
+                    });
             }
 
 
@@ -881,50 +882,50 @@
                 .text("Inflow");
 
             var inflow_card_svg = inflow_card.append("svg")
-                .attr("height","100")
-                .attr("width","200");
+                .attr("height", "100")
+                .attr("width", "200");
 
             for (var i = 0; i < 3; i++) {
-                
+
                 var arrow = inflow_card_svg.append("line")
                     .attr("x1", 0)
-                    .attr("y1", i * 20 +10)
+                    .attr("y1", i * 20 + 10)
                     .attr("x2", 90)
-                    .attr("y2", i * 20 +10)
-                    .attr("stroke-width", "" + i+2) // Random value here!
+                    .attr("y2", i * 20 + 10)
+                    .attr("stroke-width", "" + i + 2) // Random value here!
                     .attr("stroke", "green")
                     .style('opacity', '0.5');
                 var text = inflow_card_svg.append("text")
                     .attr("x", 100)
-                    .attr("y", i * 23 + 15 )
+                    .attr("y", i * 23 + 15)
                     .attr("font-size", "15px")
                     .attr("fill", "black")
-                    .text(function(d, i){
+                    .text(function (d, i) {
                         if (i == 0) return "random value min";
                         if (i == 1) return "random value med"; // Random value here!
                         if (i == 2) return "random value max";
-                        });
+                    });
             }
         }
 
 
-        function updateLegendArrow(country){
+        function updateLegendArrow(country) {
             // To be changed !!
             showLegendArrow()
         }
 
         function hideLegendArrow() {
             svg_legend.selectAll("div.outflow_card")
-                .attr("style", "display: none"); 
+                .attr("style", "display: none");
             svg_legend.selectAll("div.inflow_card")
                 .attr("style", "display: none");
         }
 
         function showLegendArrow() {
             svg_legend.selectAll("div.outflow_card")
-                .attr("style", "display: initial"); 
+                .attr("style", "display: initial");
             svg_legend.selectAll("div.inflow_card")
-                .attr("style", "display: initial"); 
+                .attr("style", "display: initial");
         }
 
 
@@ -937,8 +938,8 @@
                 .attr("class", "title")
 
             var coloration_card_svg = coloration_card.append("svg")
-                .attr("height","200")
-                .attr("width","200");
+                .attr("height", "200")
+                .attr("width", "200");
 
             var lowest = coloration_card_svg.append("text") //Lowest (at the top)
                 .attr("x", 30)
@@ -950,7 +951,7 @@
 
             var highest = coloration_card_svg.append("text") //Highest (at the bottom)
                 .attr("x", 30)
-                .attr("y", 10*shades_blue.length)
+                .attr("y", 10 * shades_blue.length)
                 .attr("class", "highest")
                 .attr("font-size", "15px")
                 .attr("fill", "black")
@@ -963,7 +964,7 @@
                     .attr("class", "rectangle")
                     .attr("width", 20)
                     .attr("height", 10)
-                    .style("fill", "#ccc");
+                    .style("fill", "#fff");
             }
         }
 
@@ -975,38 +976,42 @@
                     break;
                 case "GDP":
                     svg_legend.selectAll(".coloration_card").select('.title').text("Coloration GDP");
-                    svg_legend.selectAll(".coloration_card").select('.lowest').text(""+roundNumber(lowest_pib));
-                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(highest_pib));
+                    svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_pib));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_pib));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
-                        .style("fill", function(d, i){
-                            return shades_blue[i] });
+                        .style("fill", function (d, i) {
+                            return shades_blue[i]
+                        });
                     showLegendColoration()
                     break;
                 case "migrant_ratio":
                     svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Migrant ratio");
-                    svg_legend.selectAll(".coloration_card").select('.lowest').text(""+roundNumber(lowest_ratio));
-                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(highest_ratio/*/20*/));
+                    svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_ratio));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_ratio/*/20*/));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
-                        .style("fill", function(d, i){
-                            return shades_green[i] });
+                        .style("fill", function (d, i) {
+                            return shades_green[i]
+                        });
                     showLegendColoration()
                     break;
                 case "arrived":
                     svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Arrived");
-                    svg_legend.selectAll(".coloration_card").select('.lowest').text(""+roundNumber(lowest_arrive));
-                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(highest_arrive/*/5*/));
+                    svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_arrive));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_arrive/*/5*/));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
-                        .style("fill", function(d, i){
-                            return shades_green[i] });
+                        .style("fill", function (d, i) {
+                            return shades_green[i]
+                        });
                     showLegendColoration()
                     break;
                 case "departure":
                     svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Departures");
-                    svg_legend.selectAll(".coloration_card").select('.lowest').text(""+roundNumber(lowest_departure));
-                    svg_legend.selectAll(".coloration_card").select('.highest').text(""+roundNumber(highest_departure/*/5*/));
+                    svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_departure));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_departure/*/5*/));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
-                        .style("fill", function(d, i){
-                            return shades_green[i] });
+                        .style("fill", function (d, i) {
+                            return shades_green[i]
+                        });
                     showLegendColoration()
                     break;
                 default:
@@ -1031,7 +1036,7 @@
         }
 
 
-        function updateMapTitle(){
+        function updateMapTitle() {
             min_selected_year;
             max_selected_year;
 
@@ -1041,7 +1046,7 @@
                 case "none":
                     title = "Empty map"
                     break;
-                case "GDP": 
+                case "GDP":
                     title = "GDP per country from " + min_selected_year + " to " + max_selected_year;
                     break;
                 case "migrant_ratio":
@@ -1067,9 +1072,12 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster-->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4"
+        crossorigin="anonymous"></script>
 
 </body>
 
