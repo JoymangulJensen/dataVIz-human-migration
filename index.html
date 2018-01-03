@@ -109,6 +109,24 @@
                 </li>
             </ul>
             <form class="form-inline">
+
+                <div class="form-row" style="display: inline-block;">
+                    <div class="col-4">
+                        <label for="slider_arrows_nb" style="width: 200px; color: white;">
+                            <span id="slider_arrows_nb-value">25</span>&nbsp
+                            Arcs
+                        </label>
+                    </div>
+                    <div class="col-4">
+                        <!---->
+                        <div>
+
+                            <input id="slider_arrows_nb" type="range" value="25" min="1" max="150" step="1" />
+                        </div>
+                    </div>
+
+                </div>
+
                 <div class="form-row">
                     <div class="col-4">
                         <!---->
@@ -198,6 +216,7 @@
 
         var country_selected;
 
+        var nb_arrow_display = 25;
 
         // Shades of light blue to saturated blue.
         var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"]
@@ -530,6 +549,11 @@
                 }
 
             }
+            arcdata.sort(function (x, y) {
+                return d3.descending(x.size, y.size);
+            })
+
+            arcdata.splice(nb_arrow_display);
 
             arcs.selectAll("path")
                 .data(arcdata)
@@ -582,6 +606,9 @@
             arcs.remove();
             clearLegend();
             document.getElementById("select_coloration").selectedIndex = "none";
+            document.getElementById("slider_arrows_nb").value = 25;
+            nb_arrow_display = 25;
+            d3.select("#slider_arrows_nb-value").text(""+nb_arrow_display);
         }
 
 
@@ -1048,6 +1075,18 @@
         }
         updateMapTitle();
 
+
+        // when the input range changes update the circle 
+        d3.select("#slider_arrows_nb").on("input", function () {
+            nb_arrow_display = +this.value;
+            if (nb_arrow_display == 150){
+                nb_arrow_display = 500;
+                d3.select("#slider_arrows_nb-value").text("All");
+            } 
+            d3.select("#slider_arrows_nb-value").text(""+nb_arrow_display);
+            
+            display();
+        });
 
     </script>
 
