@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>World map !</title>
+    <title>Migration Flows</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -169,11 +169,11 @@
             <h1 id="map-title">Empty map</h1>
         </div>
 
-        <div style="margin: 0 10px 0 25px;">
+        <div style="margin: 0 10px 0 25px; ">
             <div class="row">
-                <div class="card">
-                    <div class="card-header">
-                        Featured
+                <div class="card" style="width:240px">
+                    <div class="card-header" >
+                        Legend
                     </div>
                     <div class="card-body">
                         <h2 class="card-title"></h2>
@@ -393,12 +393,12 @@
                             .attr('style', 'left:' + (mouse[0] + 50) + 'px; top:' + (mouse[1] + 0) + 'px')
                             .html(function () {
                                 if (country.properties.name) {
-                                    return country.properties.name +
-                                        "<br> Selected years: " + country.migration.min_selected_year + "-" + country.migration.max_selected_year +
-                                        "<br> GDP: " + addNumberSeparator(country.pib.average) +
+                                    return "<b>" + country.properties.name + "</b> " +
+                                        "<br> GDP: $" + addNumberSeparator(country.pib.average) +
                                         "<br> Inflow: " + addNumberSeparator(country.migration.arrive.somme) +
                                         "<br> Outlow: " + addNumberSeparator(country.migration.departure.somme) +
-                                        "<br> Ratio: " + roundNumber(country.migration.ratio);
+                                        "<br> Ratio: " + roundNumber(country.migration.ratio) + 
+                                        "<br> <small>Averaged data from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ".</small>" ;
                                 } else {
                                     return "Unknown country.<br>Look at the console (F12)";
                                 }
@@ -612,6 +612,7 @@
             document.getElementById("slider_arrows_nb").value = 25;
             nb_arrow_display = 25;
             d3.select("#slider_arrows_nb-value").text("" + nb_arrow_display);
+            updateMapTitle();
         }
 
 
@@ -833,7 +834,7 @@
 
         // Add a space every 3 digits.
         function addNumberSeparator(n){
-              return parseInt(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+              return parseInt(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
 
@@ -1054,8 +1055,6 @@
 
 
         function updateMapTitle() {
-            min_selected_year;
-            max_selected_year;
             
 
             var title = ""
