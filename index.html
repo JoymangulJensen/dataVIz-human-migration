@@ -113,8 +113,7 @@
                 <div class="form-row" style="display: inline-block;">
                     <div class="col-4">
                         <label for="slider_arrows_nb" style="width: 200px; color: white;">
-                            <span id="slider_arrows_nb-value">25</span>&nbsp
-                            Arcs
+                            <span id="slider_arrows_nb-value">25</span>&nbsp Arcs
                         </label>
                     </div>
                     <div class="col-4">
@@ -608,7 +607,7 @@
             document.getElementById("select_coloration").selectedIndex = "none";
             document.getElementById("slider_arrows_nb").value = 25;
             nb_arrow_display = 25;
-            d3.select("#slider_arrows_nb-value").text(""+nb_arrow_display);
+            d3.select("#slider_arrows_nb-value").text("" + nb_arrow_display);
         }
 
 
@@ -1079,12 +1078,12 @@
         // when the input range changes update the circle 
         d3.select("#slider_arrows_nb").on("input", function () {
             nb_arrow_display = +this.value;
-            if (nb_arrow_display == 150){
+            if (nb_arrow_display == 150) {
                 nb_arrow_display = 500;
                 d3.select("#slider_arrows_nb-value").text("All");
-            } 
-            d3.select("#slider_arrows_nb-value").text(""+nb_arrow_display);
-            
+            }
+            d3.select("#slider_arrows_nb-value").text("" + nb_arrow_display);
+
             display();
         });
 
