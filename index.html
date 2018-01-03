@@ -11,6 +11,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
 
 
     <!-- Custom styles for this template -->
@@ -77,7 +78,13 @@
 
 
     <style>
-        h1 {
+        #map-title {
+
+            background-color: #343a40c7; 
+            color: white; 
+            font-family: 'Raleway', serif; 
+            padding: 5px; 
+            font-size: 30px;
             text-align: center !important;
         }
 
@@ -105,15 +112,16 @@
                     <a class="nav-link" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href='#' onclick="reset()">Reset</a>
+                    <a class="nav-link" href='#' onclick="reset()">Reset the map</a>
                 </li>
             </ul>
             <form class="form-inline">
 
                 <div class="form-row" style="display: inline-block;">
-                    <div class="col-4">
-                        <label for="slider_arrows_nb" style="width: 200px; color: white;">
-                            <span id="slider_arrows_nb-value">25</span>&nbsp Arcs
+                    
+                    <div class="col-4" style="text-align: center">
+                        <label for="slider_arrows_nb" style="width: 200px; color: white;" >
+                            <span id="slider_arrows_nb-value" >25</span>&nbsp;arcs
                         </label>
                     </div>
                     <div class="col-4">
@@ -157,17 +165,13 @@
 
 
     <main role="main">
+        <div>
+            <h1 id="map-title">Empty map</h1>
+        </div>
 
-        <div style="margin: 0 25px;">
-            <!-- Example row of columns -->
+        <div style="margin: 0 10px 0 25px;">
             <div class="row">
-                <div class="col-md-12">
-                    <h1 id="map-title">Empty map</h1>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-3 card">
+                <div class="card">
                     <div class="card-header">
                         Featured
                     </div>
@@ -391,9 +395,9 @@
                                 if (country.properties.name) {
                                     return country.properties.name +
                                         "<br> Selected years: " + country.migration.min_selected_year + "-" + country.migration.max_selected_year +
-                                        "<br> GDP: " + roundNumber(country.pib.average) +
-                                        "<br> Inflow: " + roundNumber(country.migration.arrive.somme) +
-                                        "<br> Outlow: " + roundNumber(country.migration.departure.somme) +
+                                        "<br> GDP: " + addNumberSeparator(country.pib.average) +
+                                        "<br> Inflow: " + addNumberSeparator(country.migration.arrive.somme) +
+                                        "<br> Outlow: " + addNumberSeparator(country.migration.departure.somme) +
                                         "<br> Ratio: " + roundNumber(country.migration.ratio);
                                 } else {
                                     return "Unknown country.<br>Look at the console (F12)";
@@ -827,6 +831,11 @@
             return n
         }
 
+        // Add a space every 3 digits.
+        function addNumberSeparator(n){
+              return parseInt(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
 
 
         /*********************************
@@ -1047,27 +1056,51 @@
         function updateMapTitle() {
             min_selected_year;
             max_selected_year;
+            
 
             var title = ""
+            if (!country_selected){
+                switch (document.getElementById("select_coloration").value) {
+                    case "none":
+                        title = "Empty map"
+                        break;
+                    case "GDP":
+                        title = "GDP per country from " + min_selected_year + " to " + max_selected_year;
+                        break;
+                    case "migrant_ratio":
+                        title = "Immigration/emigration ratio from " + min_selected_year + " to " + max_selected_year;
+                        break;
+                    case "arrived":
+                        title = "Most attractive countries from " + min_selected_year + " to " + max_selected_year;
+                        break;
+                    case "departure":
+                        title = "Most repulsive countries from " + min_selected_year + " to " + max_selected_year;
+                        break;
+                    default:
+                        title = "Empty map"
+                }
+            } else {
+                var name_country = country_selected.properties.name;
+                switch (document.getElementById("select_coloration").value) {
+                    case "none":
+                        title = "Migration flows from " + min_selected_year + " to " + max_selected_year + " in " + name_country;
+                        break;
+                    case "GDP":
+                        title = "GDP per country and migration flows in " + name_country + " from " + min_selected_year + " to " + max_selected_year;
+                        break;
+                    case "migrant_ratio":
+                        title = "Immigration/emigration ratio and migration flows in " + name_country + " from " + min_selected_year + " to " + max_selected_year;
+                        break;
+                    case "arrived":
+                        title = "Most attractive countries and migration flows in " + name_country + " from " + min_selected_year + " to " + max_selected_year;
+                        break;
+                    case "departure":
+                        title = "Most repulsive countries and migration flows in " + name_country + " from " + min_selected_year + " to " + max_selected_year;
+                        break;
+                    default:
+                        title = "Migration flows from " + min_selected_year + " to " + max_selected_year + " in " + name_country;
+                }
 
-            switch (document.getElementById("select_coloration").value) {
-                case "none":
-                    title = "Empty map"
-                    break;
-                case "GDP":
-                    title = "GDP per country from " + min_selected_year + " to " + max_selected_year;
-                    break;
-                case "migrant_ratio":
-                    title = "Immigration/emigration ratio from " + min_selected_year + " to " + max_selected_year;
-                    break;
-                case "arrived":
-                    title = "Most attractive countries from " + min_selected_year + " to " + max_selected_year;
-                    break;
-                case "departure":
-                    title = "Most repulsive countries from " + min_selected_year + " to " + max_selected_year;
-                    break;
-                default:
-                    title = "Empty map"
             }
 
             d3.select("#map-title").text(title);
@@ -1075,7 +1108,7 @@
         updateMapTitle();
 
 
-        // when the input range changes update the circle 
+        // When the input range changes, update the map. 
         d3.select("#slider_arrows_nb").on("input", function () {
             nb_arrow_display = +this.value;
             if (nb_arrow_display == 150) {
