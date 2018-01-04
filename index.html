@@ -381,6 +381,7 @@
                 country_draw = map.selectAll("path")
                     .data(map_data).enter()
                     .append("path")
+                    .attr('class', 'country')
                     .attr("d", path)
                     .style("fill", "#ccc") // At the start, display nothing (for the moment)
                     .on('mousemove', function (country) {
@@ -388,29 +389,73 @@
                             return parseInt(country);
                         });
 
+                        d3.select(this)
+                            .style("stroke-width", function(country){
+                                if (country_selected) {
+                                    if (country.properties.name === country_selected.properties.name){
+                                        return 2
+                                    } else {
+                                        return 1
+                                    }
+                                }  else {
+                                    return 1
+                                }
+                            })
+                            .style("stroke", "#202020")
+
+
                         tooltip
                             .classed('hidden', false)
                             .attr('style', 'left:' + (mouse[0] + 50) + 'px; top:' + (mouse[1] + 0) + 'px')
                             .html(function () {
                                 if (country.properties.name) {
-                                    return "<b>" + country.properties.name + "</b> " +
+
+                                    if (!country_selected || country.id == country_selected.id) {
+                                        return "<b>" + country.properties.name + "</b> " +
                                         "<br> GDP: $" + addNumberSeparator(country.pib.average) +
-                                        "<br> Inflow: " + addNumberSeparator(country.migration.arrive.somme) +
-                                        "<br> Outlow: " + addNumberSeparator(country.migration.departure.somme) +
+                                        "<br> Incoming: " + addNumberSeparator(country.migration.arrive.somme) +
+                                        "<br> Leaving: " + addNumberSeparator(country.migration.departure.somme) +
                                         "<br> Ratio: " + roundNumber(country.migration.ratio) + 
                                         "<br> <small>Averaged data from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ".</small>" ;
+                                    } else {
+
+                                        console.log(country)
+                                        return "<b>" + country.properties.name + "</b> " +
+                                        "<br> GDP: $" + addNumberSeparator(country.pib.average) +
+                                        "<br> Going to " + country_selected.properties.name + ": " + addNumberSeparator(country.migration.arrive.sommes[country_selected.id])+  
+                                        "<br> Coming from " + country_selected.properties.name + ": " +  addNumberSeparator(country.migration.departure.sommes[country_selected.id]) + 
+                                        "<br> Ratio: " + roundNumber(country.migration.arrive.sommes[country_selected.id]/country.migration.departure.sommes[country_selected.id]) + 
+                                        "<br> <small>Averaged data from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ".</small>" ;
+
+
+                                    }
+                                    
                                 } else {
                                     return "Unknown country.<br>Look at the console (F12)";
                                 }
                             })
 
                     })
-                    .on('mouseout', function () {
+                    .on('mouseout', function (country) {
                         tooltip.classed('hidden', true);
+                        d3.select(this)
+                             .style("stroke-width", function(country){
+                                if (country_selected) {
+                                    if (country.properties.name === country_selected.properties.name){
+                                        return 2
+                                    } else {
+                                        return 0
+                                    }
+                                }  else {
+                                    return 0
+                                }
+                            })
+                             .style("stroke", "#202020")
                     })
                     .on('click', function (country) { // Click on a country to see migration.
                         country_selected = country;
                         updateLegendArrow(country_selected);
+                        updateBorderSelectedCountry(country_selected)
                         display();
                     });
             });
@@ -419,6 +464,22 @@
 
 
 
+
+        function updateBorderSelectedCountry(){
+            map.selectAll("path.country")
+                .style("stroke-width", function(country){
+                    if (country_selected) {
+                        if (country.properties.name === country_selected.properties.name){
+                            return 2
+                        } else {
+                            return 0
+                        }
+                    }  else {
+                        return 0
+                    }
+                })
+                .style("stroke", "#202020")
+        }
 
         function display() {
             switch (document.getElementById("select_coloration").value) {
@@ -571,6 +632,7 @@
                     else
                         return 'red';
                 })
+                .attr('class', "arc")
                 .attr('d', function (d) {
                     bend = 1.2;
                     var dx = d['target'][0] - d['source'][0],
@@ -834,7 +896,7 @@
 
         // Add a space every 3 digits.
         function addNumberSeparator(n){
-              return parseInt(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return parseInt(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
 
@@ -853,7 +915,7 @@
 
             var outflow_card = svg_legend.append("div")
                 .attr("class", "outflow_card")
-                .attr("style", "display: none"); //none
+                .attr("style", "display: none");
 
             outflow_card.append("h5")
                 .text("Outflow");
@@ -869,9 +931,15 @@
                     .attr("x2", 90)
                     .attr("y2", i * 23 + 10)
                     .attr("stroke-width", function () {
-                        if (i == 0) return Math.sqrt(min) / 25;
-                        if (i == 1) return Math.sqrt(mid) / 25; // Random value here!
-                        if (i == 2) return Math.sqrt(max) / 25;
+                        if (i == 0) {
+                            if (parseInt(Math.sqrt(min) / 25) === 0) {
+                                return 1
+                            } else {
+                                return parseInt(Math.sqrt(min) / 25)
+                            }
+                        };
+                        if (i == 1) return parseInt(Math.sqrt(mid) / 25);
+                        if (i == 2) return parseInt(Math.sqrt(max) / 25);
                     })
                     .attr("stroke", "red")
                     .style('opacity', '0.5');
@@ -882,7 +950,7 @@
                     .attr("fill", "black")
                     .text(function () {
                         if (i == 0) return "" + min;
-                        if (i == 1) return "" + mid; // Random value here!
+                        if (i == 1) return "" + mid; 
                         if (i == 2) return "" + max;
                     });
             }
@@ -907,9 +975,15 @@
                     .attr("x2", 90)
                     .attr("y2", i * 23 + 10)
                     .attr("stroke-width", function () {
-                        if (i == 0) return Math.sqrt(min) / 25;
-                        if (i == 1) return Math.sqrt(mid) / 25; // Random value here!
-                        if (i == 2) return Math.sqrt(max) / 25;
+                        if (i == 0) {
+                            if (parseInt(Math.sqrt(min) / 25) === 0) {
+                                return 1
+                            } else {
+                                return parseInt(Math.sqrt(min) / 25)
+                            }
+                        };
+                        if (i == 1) return parseInt(Math.sqrt(mid) / 25);
+                        if (i == 2) return parseInt(Math.sqrt(max) / 25);
                     })
                     .attr("stroke", "green")
                     .style('opacity', '0.5');
