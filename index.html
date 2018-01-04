@@ -565,9 +565,9 @@
         function displayPib() {
             color = d3.scaleQuantize()
                 .range(shades_blue)
-                .domain([lowest_pib, highest_pib]);
+                .domain([Math.log(lowest_pib), Math.log(highest_pib)]);
             country_draw.transition(t).style("fill", function (d) {
-                var pib = d.pib.average;
+                var pib = Math.log(d.pib.average);
                 if (pib) {
                     return color(pib);
                 } else {
@@ -582,9 +582,9 @@
         function displayRatio() {
             color = d3.scaleQuantize()
                 .range(shades_green)
-                .domain([lowest_ratio, highest_ratio / 20]);
+                .domain([Math.log(lowest_ratio), Math.log(highest_ratio/20)]);
             country_draw.transition(t).style("fill", function (d) {
-                var ratio = d.migration.ratio;
+                var ratio = Math.log(d.migration.ratio);
                 if (ratio) {
                     return color(ratio);
                 } else {
