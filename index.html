@@ -117,29 +117,14 @@
             </ul>
             <form class="form-inline">
 
-                <div class="form-row" style="display: inline-block;">
-                    
-                    <div class="col-4" style="text-align: center">
-                        <label for="slider_arrows_nb" style="width: 200px; color: white;" >
-                            <span id="slider_arrows_nb-value" >25</span>&nbsp;arcs
-                        </label>
-                    </div>
+                <div class="form-row" >
                     <div class="col-4">
-                        <!---->
-                        <div>
-
-                            <input id="slider_arrows_nb" type="range" value="25" min="1" max="150" step="1" />
-                        </div>
+                        <div id="simple_slider_d3" />
                     </div>
-
                 </div>
 
                 <div class="form-row">
-                    <div class="col-4">
-                        <!---->
-                        <div>
-                            <div id="slider_d3"></div>
-                        </div>
+                    <div class="col-4" id="double_slider_d3">
                     </div>
                 </div>
 
@@ -233,12 +218,17 @@
         var svg = d3.select("#world_map_graph_d3")
             .append("svg")
             .attr("width", width)
-            .attr("height", height);
+            .attr("height", height).style("background-color", "white");
 
-        var svg_slider = d3.select("#slider_d3")
+        var svg_slider = d3.select("#double_slider_d3")
             .append("svg")
             .attr("width", 250)
-            .attr("height", 50);
+            .attr("height", 40);
+
+        var svg_simple_slider = d3.select("#simple_slider_d3")
+            .append("svg")
+            .attr("width", 250)
+            .attr("height", 40);
 
         var svg_legend = d3.select("#legend_d3")
             .append("div")
@@ -252,6 +242,10 @@
 
         var tooltip_arrow = d3.select('body').append('div')
             .attr('class', 'hidden tooltip');
+
+        var simple_slider = svg_simple_slider.append("g")
+            .attr("class", "slider")
+            .attr("transform", "translate(" + 10 + "," + 20 + ")");
 
         var double_slider = svg_slider.append("g")
             .attr("class", "slider")
@@ -271,6 +265,10 @@
             x_slider = d3.scaleLinear()
                 .domain([MIN_YEAR, MAX_YEAR])
                 .range([0, slider_width])
+                .clamp(true),
+            x_simple_slider = d3.scaleLinear()
+                .domain([1, 150])
+                .range([0, slider_width])
                 .clamp(true);
 
         svg.call(d3.zoom()
@@ -287,17 +285,72 @@
         var color = d3.scaleQuantize()
             .range(shades_green);
 
+
+       
+
+        simple_slider.append("line")
+            .attr("class", "track")
+            .attr("x1", x_simple_slider.range()[0])
+            .attr("x2", x_simple_slider.range()[1])
+          .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+            .attr("class", "track-inset")
+          .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+            .attr("class", "track-overlay")
+            .call(d3.drag()
+                .on("start.interrupt", function() { simple_slider.interrupt(); })
+                .on("start drag", function() { 
+                    setHandle(x_simple_slider.invert(d3.event.x)); 
+                }));
+
+        simple_slider.insert("g", ".track-overlay")
+            .attr("class", "ticks")
+            .attr("transform", "translate(0," + 18 + ")")
+            .append("text")
+            .attr("x", 77)
+            .attr("class", "label_simple_slider")
+            //attr("text-anchor", "middle")
+            .style('font-size', '11px')
+            .style('fill', 'white')
+            .text(function(){
+                return nb_arrow_display + ' arcs'
+            });
+
+        
+        var handle = simple_slider.insert("circle", ".track-overlay")
+            .attr("class", "handle")
+            .attr("cx", x_simple_slider(nb_arrow_display))
+            .attr("r", 9);
+
+        function setHandle(h) {
+            handle.attr("cx", x_simple_slider(Math.round(h)));
+            if (country_selected) updateNumberArcs();
+
+            nb_arrow_display = Math.round(h);
+
+            simple_slider.select(".label_simple_slider").text(function(){
+
+                if (nb_arrow_display >= 150) {
+                    return "All arcs"    
+                } else if (nb_arrow_display <= 1){
+                    return nb_arrow_display + " arc"   
+                } else 
+                return nb_arrow_display + " arcs"
+            });
+        }
+
+        function getNumberArc(){
+            return x_simple_slider.invert(handle.attr("cx"));
+        }
+
+
+
         double_slider.append("line")
             .attr("class", "track")
             .attr("x1", x_slider.range()[0])
             .attr("x2", x_slider.range()[1])
-            .select(function () {
-                return this.parentNode.appendChild(this.cloneNode(true));
-            })
+          .select(function () { return this.parentNode.appendChild(this.cloneNode(true));  })
             .attr("class", "track-inset")
-            .select(function () {
-                return this.parentNode.appendChild(this.cloneNode(true));
-            })
+          .select(function () { return this.parentNode.appendChild(this.cloneNode(true));  })
             .attr("class", "track-overlay")
             .call(d3.drag()
                 .on("start.interrupt", function () {
@@ -435,7 +488,7 @@
                         // Hide tooltip and hide border.
                         tooltip.classed('hidden', true);
                         d3.select(this)
-                             .style("stroke-width", function(country){
+                            .style("stroke-width", function(country){
                                 if (country_selected) {
                                     if (country.id === country_selected.id){
                                         return 2
@@ -446,20 +499,18 @@
                                     return 0
                                 }
                             })
-                             .style("stroke", "#202020")
+                            .style("stroke", "#202020")
                     })
                     .on('click', function (country) { 
                         // Add heavier border, displays arcs, change tooltip informations.
+
                         country_selected = country;
                         updateLegendArrow(country_selected);
-                        updateBorderSelectedCountry()
+                        updateBorderSelectedCountry();
                         display();
                     });
             });
         });
-
-
-
 
 
         function updateBorderSelectedCountry(){
@@ -505,7 +556,7 @@
         }
 
         function displayGrey() {
-            country_draw.style("fill", "#ccc");
+            country_draw.transition(t).style("fill", "#ccc");
             updateLegendColoration(document.getElementById("select_coloration").value);
             updateMapTitle();
         }
@@ -515,7 +566,7 @@
             color = d3.scaleQuantize()
                 .range(shades_blue)
                 .domain([lowest_pib, highest_pib]);
-            country_draw.style("fill", function (d) {
+            country_draw.transition(t).style("fill", function (d) {
                 var pib = d.pib.average;
                 if (pib) {
                     return color(pib);
@@ -532,7 +583,7 @@
             color = d3.scaleQuantize()
                 .range(shades_green)
                 .domain([lowest_ratio, highest_ratio / 20]);
-            country_draw.style("fill", function (d) {
+            country_draw.transition(t).style("fill", function (d) {
                 var ratio = d.migration.ratio;
                 if (ratio) {
                     return color(ratio);
@@ -551,7 +602,7 @@
                 .range(shades_green)
                 .domain([lowest_arrive, highest_arrive / 5]);
 
-            country_draw.style("fill", function (d) {
+            country_draw.transition(t).style("fill", function (d) {
                 var migration_number = d.migration.departure.somme;
                 if (migration_number) {
                     return color(migration_number);
@@ -570,7 +621,7 @@
                 .range(shades_green)
                 .domain([lowest_departure, highest_departure / 5]);
 
-            country_draw.style("fill", function (d) {
+            country_draw.transition(t).style("fill", function (d) {
                 var migration_number = d.migration.departure.somme;
                 if (migration_number) {
                     return color(migration_number);
@@ -582,8 +633,14 @@
             updateMapTitle();
         }
 
+
+
+  
+
+
         function displayArcs() {
-            arcs.remove();
+            arcs.selectAll(".arc").remove();
+
             arcs = map.append("g")
                 .attr("class", "arcs");
 
@@ -614,14 +671,23 @@
                 return d3.descending(x.size, y.size);
             })
 
-            arcdata.splice(nb_arrow_display);
 
-            arcs.selectAll("path")
-                .data(arcdata)
-                .enter()
+            arcs.selectAll(".arc")
+                .data(arcdata).enter()
                 .append("path")
-                .style("stroke-width", function (d) {
-                    return d.size;
+                .attr('class', "arc")
+                .style("stroke-width", function (d, i) {
+                    if (i >= getNumberArc()) {
+                        return 0;
+                    }
+                    else {
+                        return d.size;
+                    }                    
+                })
+
+                .style("stroke-opacity", function(){
+                    // Adaptative opacity, function of number of arrow displayed.
+                    return 0.4+0.57*Math.exp(-0.063*nb_arrow_display)
                 })
                 .style("stroke", function (d) {
                     if (d.type == "inflow")
@@ -629,7 +695,6 @@
                     else
                         return 'red';
                 })
-                .attr('class', "arc")
                 .attr('d', function (d) {
                     bend = 1.2;
                     var dx = d['target'][0] - d['source'][0],
@@ -637,7 +702,21 @@
                         dr = Math.sqrt(dx * dx + dy * dy) * bend;
                     return "M" + d['target'][0] + "," + d['target'][1] + "A" + dr + "," + dr + " 0 0,1 " + d['source'][0] + "," + d['source'][1];
                 });
+
+
+              
+                
         }
+
+
+
+        // When the input range changes, update the map. 
+        function updateNumberArcs(){
+
+            displayArcs();
+        }
+
+
 
         function updateDate() {
             feedPibData();
@@ -664,13 +743,11 @@
             feedSelectedAveragePib();
 
             country_selected = null;
-            country_draw.style("fill", "#ccc");
-            arcs.remove();
+            country_draw.transition(t).style("fill", "#ccc");
+            arcs.transition(t).remove();
             clearLegend();
             document.getElementById("select_coloration").selectedIndex = "none";
-            document.getElementById("slider_arrows_nb").value = 25;
             nb_arrow_display = 25;
-            d3.select("#slider_arrows_nb-value").text("" + nb_arrow_display);
             updateMapTitle();
             updateBorderSelectedCountry();
         }
@@ -1179,17 +1256,6 @@
         updateMapTitle();
 
 
-        // When the input range changes, update the map. 
-        d3.select("#slider_arrows_nb").on("input", function () {
-            nb_arrow_display = +this.value;
-            if (nb_arrow_display == 150) {
-                nb_arrow_display = 500;
-                d3.select("#slider_arrows_nb-value").text("All");
-            }
-            d3.select("#slider_arrows_nb-value").text("" + nb_arrow_display);
-
-            display();
-        });
 
     </script>
 
