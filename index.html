@@ -148,9 +148,9 @@
                         <select class="form-control" onchange="display()" id="select_coloration">
                             <option value="none" selected="">No coloration</option>
                             <option value="GDP">GDP</option>
-                            <option value="migrant_ratio" onchange="displayRatio()">Migrant-ratio</option>
-                            <option value="arrived"="displayArrive()">Arrived</option>
-                            <option value="departure" onchange="displayDeparture()">Departure</option>
+                            <option value="migrant_ratio">Ratio emig./immigr.</option>
+                            <option value="arrived">Nb. immigrants</option>
+                            <option value="departure">Nb. emigrants</option>
                         </select>
                     </div>
                 </div>
@@ -226,6 +226,10 @@
         // Shades of light green to saturated green.
         var shades_green = ["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"]
 
+        var t = d3.transition()
+            .duration(750)
+            .ease(d3.easeLinear);
+
         var svg = d3.select("#world_map_graph_d3")
             .append("svg")
             .attr("width", width)
@@ -260,7 +264,7 @@
             .scale(width / 2 / Math.PI - 10)
             .translate([width / 2, height / 2]);
 
-        var path = d3.geoPath() // d3.geo.path avec d3 version 3
+        var path = d3.geoPath()
             .projection(projection);
 
         var slider_width = 200,
@@ -383,12 +387,10 @@
                     .append("path")
                     .attr('class', 'country')
                     .attr("d", path)
-                    .style("fill", "#ccc") // At the start, display nothing (for the moment)
+                    .style("fill", "#ccc") // At the start, display nothing.
                     .on('mousemove', function (country) {
-                        var mouse = d3.mouse(map.node()).map(function (country) {
-                            return parseInt(country);
-                        });
 
+                        // Add a solid border for the country hovered.
                         d3.select(this)
                             .style("stroke-width", function(country){
                                 if (country_selected) {
@@ -401,15 +403,14 @@
                                     return 1
                                 }
                             })
-                            .style("stroke", "#202020")
+                            .style("stroke", "#202020");
 
-
+                        // Show information in a tooltip.
                         tooltip
                             .classed('hidden', false)
-                            .attr('style', 'left:' + (mouse[0] + 50) + 'px; top:' + (mouse[1] + 0) + 'px')
+                            .attr('style', 'left:' + (d3.event.pageX + 50) + 'px; top:' + (d3.event.pageY) + 'px')
                             .html(function () {
                                 if (country.properties.name) {
-
                                     if (!country_selected || country.id == country_selected.id) {
                                         return "<b>" + country.properties.name + "</b> " +
                                         "<br> GDP: $" + addNumberSeparator(country.pib.average) +
@@ -418,30 +419,25 @@
                                         "<br> Ratio: " + roundNumber(country.migration.ratio) + 
                                         "<br> <small>Averaged data from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ".</small>" ;
                                     } else {
-
-                                        console.log(country)
                                         return "<b>" + country.properties.name + "</b> " +
                                         "<br> GDP: $" + addNumberSeparator(country.pib.average) +
                                         "<br> Going to " + country_selected.properties.name + ": " + addNumberSeparator(country.migration.arrive.sommes[country_selected.id])+  
                                         "<br> Coming from " + country_selected.properties.name + ": " +  addNumberSeparator(country.migration.departure.sommes[country_selected.id]) + 
-                                        "<br> Ratio: " + roundNumber(country.migration.arrive.sommes[country_selected.id]/country.migration.departure.sommes[country_selected.id]) + 
+                                        "<br> Ratio: " + roundNumber(country.migration.departure.sommes[country_selected.id]/country.migration.arrive.sommes[country_selected.id]) + 
                                         "<br> <small>Averaged data from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ".</small>" ;
-
-
                                     }
-                                    
                                 } else {
                                     return "Unknown country.<br>Look at the console (F12)";
                                 }
                             })
-
                     })
                     .on('mouseout', function (country) {
+                        // Hide tooltip and hide border.
                         tooltip.classed('hidden', true);
                         d3.select(this)
                              .style("stroke-width", function(country){
                                 if (country_selected) {
-                                    if (country.properties.name === country_selected.properties.name){
+                                    if (country.id === country_selected.id){
                                         return 2
                                     } else {
                                         return 0
@@ -452,10 +448,11 @@
                             })
                              .style("stroke", "#202020")
                     })
-                    .on('click', function (country) { // Click on a country to see migration.
+                    .on('click', function (country) { 
+                        // Add heavier border, displays arcs, change tooltip informations.
                         country_selected = country;
                         updateLegendArrow(country_selected);
-                        updateBorderSelectedCountry(country_selected)
+                        updateBorderSelectedCountry()
                         display();
                     });
             });
@@ -469,7 +466,7 @@
             map.selectAll("path.country")
                 .style("stroke-width", function(country){
                     if (country_selected) {
-                        if (country.properties.name === country_selected.properties.name){
+                        if (country.id === country_selected.id){
                             return 2
                         } else {
                             return 0
@@ -509,7 +506,7 @@
 
         function displayGrey() {
             country_draw.style("fill", "#ccc");
-            hideLegendColoration();
+            updateLegendColoration(document.getElementById("select_coloration").value);
             updateMapTitle();
         }
 
@@ -675,6 +672,7 @@
             nb_arrow_display = 25;
             d3.select("#slider_arrows_nb-value").text("" + nb_arrow_display);
             updateMapTitle();
+            updateBorderSelectedCountry();
         }
 
 
@@ -1033,17 +1031,17 @@
                 .attr("height", "200")
                 .attr("width", "200");
 
-            var lowest = coloration_card_svg.append("text") //Lowest (at the top)
+            var lowest = coloration_card_svg.append("text")
                 .attr("x", 30)
-                .attr("y", 10)
+                .attr("y", 10 * shades_blue.length)
                 .attr("class", "lowest")
                 .attr("font-size", "15px")
                 .attr("fill", "black")
                 .text("");
 
-            var highest = coloration_card_svg.append("text") //Highest (at the bottom)
+            var highest = coloration_card_svg.append("text")
                 .attr("x", 30)
-                .attr("y", 10 * shades_blue.length)
+                .attr("y", 10)
                 .attr("class", "highest")
                 .attr("font-size", "15px")
                 .attr("fill", "black")
@@ -1067,42 +1065,42 @@
                     hideLegendColoration();
                     break;
                 case "GDP":
-                    svg_legend.selectAll(".coloration_card").select('.title').text("Coloration GDP");
+                    svg_legend.selectAll(".coloration_card").select('.title').text("GDP ($)");
                     svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_pib));
                     svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_pib));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function (d, i) {
-                            return shades_blue[i]
+                            return shades_blue[shades_blue.length - i]
                         });
                     showLegendColoration()
                     break;
                 case "migrant_ratio":
-                    svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Migrant ratio");
+                    svg_legend.selectAll(".coloration_card").select('.title').text("Ratio (emigr./immigr.)");
                     svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_ratio));
                     svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_ratio/*/20*/));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function (d, i) {
-                            return shades_green[i]
+                            return shades_green[shades_green.length - i]
                         });
                     showLegendColoration()
                     break;
                 case "arrived":
-                    svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Arrived");
+                    svg_legend.selectAll(".coloration_card").select('.title').text("Number of immigrants");
                     svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_arrive));
                     svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_arrive/*/5*/));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function (d, i) {
-                            return shades_green[i]
+                            return shades_green[shades_green.length - i]
                         });
                     showLegendColoration()
                     break;
                 case "departure":
-                    svg_legend.selectAll(".coloration_card").select('.title').text("Coloration Departures");
+                    svg_legend.selectAll(".coloration_card").select('.title').text("Number of emigrants");
                     svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_departure));
                     svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_departure/*/5*/));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function (d, i) {
-                            return shades_green[i]
+                            return shades_green[shades_green.length - i]
                         });
                     showLegendColoration()
                     break;
@@ -1162,7 +1160,7 @@
                         title = "GDP per country and migration flows in " + name_country + " from " + min_selected_year + " to " + max_selected_year;
                         break;
                     case "migrant_ratio":
-                        title = "Immigration/emigration ratio and migration flows in " + name_country + " from " + min_selected_year + " to " + max_selected_year;
+                        title = "Emigration/immigration ratio and migration flows in " + name_country + " from " + min_selected_year + " to " + max_selected_year;
                         break;
                     case "arrived":
                         title = "Most attractive countries and migration flows in " + name_country + " from " + min_selected_year + " to " + max_selected_year;
