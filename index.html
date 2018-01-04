@@ -131,9 +131,9 @@
                 <div class="form-row align-items-center">
                     <div class="col-4">
                         <select class="form-control" onchange="display()" id="select_coloration">
-                            <option value="none" selected="">No coloration</option>
-                            <option value="GDP">GDP</option>
-                            <option value="migrant_ratio">Ratio emig./immigr.</option>
+                            <option value="none">No coloration</option>
+                            <option value="GDP" >GDP</option>
+                            <option value="migrant_ratio" selected="">Ratio emig./immigr.</option>
                             <option value="arrived">Nb. immigrants</option>
                             <option value="departure">Nb. emigrants</option>
                         </select>
@@ -161,7 +161,6 @@
                         Legend
                     </div>
                     <div class="card-body">
-                        <h2 class="card-title"></h2>
                         <p class="card-text" id="legend_d3"></p>
                     </div>
                 </div>
@@ -207,9 +206,9 @@
         var nb_arrow_display = 25;
 
         // Shades of light blue to saturated blue.
-        var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", "#00134d", "#000d33"]
+        var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", /*"#00134d", "#000d33"*/]
         // Shades of light green to saturated green.
-        var shades_green = ["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", "#004d00", "#003300"]
+        var shades_green = ["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", /*"#004d00", "#003300"*/]
 
         var t = d3.transition()
             .duration(750)
@@ -509,6 +508,7 @@
                         updateBorderSelectedCountry();
                         display();
                     });
+                display();
             });
         });
 
@@ -687,7 +687,7 @@
 
                 .style("stroke-opacity", function(){
                     // Adaptative opacity, function of number of arrow displayed.
-                    return 0.4+0.57*Math.exp(-0.063*nb_arrow_display)
+                    return 0.5+0.57*Math.exp(-0.063*nb_arrow_display)
                 })
                 .style("stroke", function (d) {
                     if (d.type == "inflow")
@@ -1101,12 +1101,12 @@
                 .attr("class", "coloration_card")
                 .attr("style", "display: hidden");
 
-            var title = coloration_card.append("h5")
+            var title = coloration_card.append("h6")
                 .attr("class", "title")
 
             var coloration_card_svg = coloration_card.append("svg")
-                .attr("height", "200")
-                .attr("width", "200");
+                .attr("height", "180")
+                .attr("width", "180");
 
             var lowest = coloration_card_svg.append("text")
                 .attr("x", 30)
