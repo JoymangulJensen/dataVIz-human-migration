@@ -12,6 +12,7 @@
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 
     <!-- Custom styles for this template -->
@@ -100,7 +101,7 @@
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Migration flows</a>
+        <span class="navbar-brand" >Migration flows</span>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
             aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -108,14 +109,25 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="https://github.com/JoymangulJensen/dataVIz-human-migration">GitHub</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href='#' onclick="reset()">Reset the map</a>
-                </li>
+            	<li class="nav-item dropdown">
+			        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			          About
+			        </a>
+			        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+			          <a class="dropdown-item" target="_blank" href="https://github.com/JoymangulJensen/dataVIz-human-migration/blob/master/Reports/Intermediate/studying-human-migration.pdf">Intermediate report</a>
+			          <div class="dropdown-divider"></div>
+			          <a class="dropdown-item" target="_blank" href="https://github.com/JoymangulJensen/dataVIz-human-migration">Code on GitHub</a>
+			          <a class="dropdown-item" target="_blank" href="https://stats.oecd.org/Index.aspx?DataSetCode=MIG">Migration data</a>
+			          <div class="dropdown-divider"></div>
+			          <a class="dropdown-item" href='#' data-toggle="modal" data-target="#exampleModal">Credits</a>
+			        </div>
+			     </li>
+                
             </ul>
             <form class="form-inline">
+            	<div class="form-row" >
+                    <a class="nav-link" href="#" onclick="reset()" style="color:white" title="Reset map"><i class="material-icons">settings_backup_restore</i></a>
+                </div>
 
                 <div class="form-row" >
                     <div class="col-4">
@@ -143,9 +155,27 @@
         </div>
     </nav>
 
-    <form>
-
-    </form>
+    <!-- Modal dialog box for credits -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLabel">Credits</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        Thomas Blondelle: <a href="mailto:thomas.blondelle@ecl15.ec-lyon.fr">thomas.blondelle@ecl15.ec-lyon.fr</a><br>
+	        Jensen Joymangul: <a href="mailto:jensen.joymangul@etu.univ-lyon1.fr">jensen.joymangul@etu.univ-lyon1.fr</a><br>
+	        Matthieu Moisson: <a href="mailto:matthieu.moisson-franckhauser@etu.univ-lyon1.fr">matthieu.moisson-franckhauser@etu.univ-lyon1.fr</a><br>
+	        <br>
+	        Université Claude Bernard Lyon 1<br>
+	        Master 2 - Data Science 2017/2018
+	      </div>
+	    </div>
+	  </div>
+	</div>
 
 
 
@@ -175,7 +205,7 @@
     </main>
 
     <footer class="container">
-        <p align="center">&copy; Master 2 Data Science 2017</p>
+        <p align="center">&copy; Master 2 UCBL - Data Science 2017/2018</p>
     </footer>
 
     <script>
@@ -469,14 +499,14 @@
                                         "<br> Incoming: " + addNumberSeparator(country.migration.arrive.somme) +
                                         "<br> Leaving: " + addNumberSeparator(country.migration.departure.somme) +
                                         "<br> Ratio: " + roundNumber(country.migration.ratio) + 
-                                        "<br> <small>Averaged data from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ".</small>" ;
+                                        "<br> <small>Annually (average from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ")</small>" ;
                                     } else {
                                         return "<b>" + country.properties.name + "</b> " +
                                         "<br> GDP: $" + addNumberSeparator(country.pib.average) +
-                                        "<br> Going to " + country_selected.properties.name + ": " + addNumberSeparator(country.migration.arrive.sommes[country_selected.id])+  
-                                        "<br> Coming from " + country_selected.properties.name + ": " +  addNumberSeparator(country.migration.departure.sommes[country_selected.id]) + 
+                                        "<br> Going to " + country_selected.properties.name + ": " + addNumberSeparator(country.migration.arrive.sommes[country_selected.id] / (country.migration.max_selected_year - country.migration.min_selected_year))+  
+                                        "<br> Coming from " + country_selected.properties.name + ": " +  addNumberSeparator(country.migration.departure.sommes[country_selected.id] / (country.migration.max_selected_year - country.migration.min_selected_year)) + 
                                         "<br> Ratio: " + roundNumber(country.migration.departure.sommes[country_selected.id]/country.migration.arrive.sommes[country_selected.id]) + 
-                                        "<br> <small>Averaged data from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ".</small>" ;
+                                        "<br> <small>Annually (average from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ")</small>" ;
                                     }
                                 } else {
                                     return "Unknown country.<br>Look at the console (F12)";
@@ -1108,18 +1138,18 @@
                 .attr("height", "180")
                 .attr("width", "180");
 
-            var lowest = coloration_card_svg.append("text")
+            var highest = coloration_card_svg.append("text")
                 .attr("x", 30)
-                .attr("y", 10 * shades_blue.length)
-                .attr("class", "lowest")
+                .attr("y", 12)
+                .attr("class", "highest")
                 .attr("font-size", "15px")
                 .attr("fill", "black")
                 .text("");
 
-            var highest = coloration_card_svg.append("text")
+            var lowest = coloration_card_svg.append("text")
                 .attr("x", 30)
-                .attr("y", 10)
-                .attr("class", "highest")
+                .attr("y", 10 * shades_blue.length)
+                .attr("class", "lowest")
                 .attr("font-size", "15px")
                 .attr("fill", "black")
                 .text("");
