@@ -504,8 +504,8 @@
                                     } else {
                                         return "<b>" + country.properties.name + "</b> " +
                                         "<br> GDP: $" + addNumberSeparator(country.pib.average) +
-                                        "<br> Going to " + country_selected.properties.name + ": " + addNumberSeparator(country.migration.arrive.sommes[country_selected.id] / (country.migration.max_selected_year - country.migration.min_selected_year))+  
-                                        "<br> Coming from " + country_selected.properties.name + ": " +  addNumberSeparator(country.migration.departure.sommes[country_selected.id] / (country.migration.max_selected_year - country.migration.min_selected_year)) + 
+                                        "<br> Going to " + country_selected.properties.name + ": " + addNumberSeparator(country.migration.departure.sommes[country_selected.id] / (country.migration.max_selected_year - country.migration.min_selected_year))+  
+                                        "<br> Coming from " + country_selected.properties.name + ": " +  addNumberSeparator(country.migration.arrive.sommes[country_selected.id] / (country.migration.max_selected_year - country.migration.min_selected_year)) + 
                                         "<br> Ratio: " + roundNumber(country.migration.departure.sommes[country_selected.id]/country.migration.arrive.sommes[country_selected.id]) + 
                                         "<br> <small>Annually (average from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ")</small>" ;
                                     }
