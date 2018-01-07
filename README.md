@@ -7,9 +7,9 @@ On [our website](https://joymanguljensen.github.io/dataVIz-human-migration/), yo
 We have used:
 - [d3.js](https://d3js.org/) for the implementation of the map
 - the [migration data](https://stats.oecd.org/Index.aspx?DataSetCode=MIG) from the OECD
-- the GDP data from ? (add link)
+- the [GDP data](https://donnees.banquemondiale.org/indicateur/NY.GDP.MKTP.CD?end=2015&start=2000) from the World Bank
 
 This project is part of a school project, following [these guidelines](https://lyondataviz.github.io/teaching/lyon1-m2/2017/projets.html).
 
 ## Resources
-[Cours visualisation interactive de données (M2 2017-2018)](https://lyondataviz.github.io/teaching/lyon1-m2/2017/)
+[Cours de visualisation interactive de données (M2 2017-2018)](https://lyondataviz.github.io/teaching/lyon1-m2/2017/)
