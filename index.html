@@ -497,8 +497,8 @@
                                     if (!country_selected || country.id == country_selected.id) {
                                         return "<b>" + country.properties.name + "</b> " +
                                         "<br> GDP: $" + addNumberSeparator(country.pib.average) +
-                                        "<br> Incoming: " + addNumberSeparator(country.migration.arrive.somme) +
-                                        "<br> Leaving: " + addNumberSeparator(country.migration.departure.somme) +
+                                        "<br> Incoming: " + addNumberSeparator(country.migration.arrive.somme / (country.migration.max_selected_year - country.migration.min_selected_year)) +
+                                        "<br> Leaving: " + addNumberSeparator(country.migration.departure.somme / (country.migration.max_selected_year - country.migration.min_selected_year)) +
                                         "<br> Ratio: " + roundNumber(country.migration.ratio) + 
                                         "<br> <small>Annually (average from " + country.migration.min_selected_year + " to " + country.migration.max_selected_year + ")</small>" ;
                                     } else {
