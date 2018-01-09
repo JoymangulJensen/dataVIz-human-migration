@@ -631,10 +631,10 @@
 
             color = d3.scaleQuantize()
                 .range(shades_green)
-                .domain([lowest_arrive, highest_arrive / 5]);
+                .domain([lowest_arrive, highest_arrive /5]);
 
             country_draw.transition(t).style("fill", function (d) {
-                var migration_number = d.migration.departure.somme;
+                var migration_number = d.migration.arrive.somme;
                 if (migration_number) {
                     return color(migration_number);
                 } else {
@@ -650,7 +650,7 @@
 
             color = d3.scaleQuantize()
                 .range(shades_green)
-                .domain([lowest_departure, highest_departure / 5]);
+                .domain([lowest_departure, highest_departure ]);
 
             country_draw.transition(t).style("fill", function (d) {
                 var migration_number = d.migration.departure.somme;
@@ -1185,7 +1185,7 @@
                 case "migrant_ratio":
                     svg_legend.selectAll(".coloration_card").select('.title').text("Ratio (emigr./immigr.)");
                     svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_ratio));
-                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_ratio/*/20*/));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_ratio));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function (d, i) {
                             return shades_green[shades_green.length - i]
@@ -1195,7 +1195,7 @@
                 case "arrived":
                     svg_legend.selectAll(".coloration_card").select('.title').text("Number of immigrants");
                     svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_arrive));
-                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_arrive/*/5*/));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_arrive/(max_selected_year - min_selected_year)));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function (d, i) {
                             return shades_green[shades_green.length - i]
@@ -1205,7 +1205,7 @@
                 case "departure":
                     svg_legend.selectAll(".coloration_card").select('.title').text("Number of emigrants");
                     svg_legend.selectAll(".coloration_card").select('.lowest').text("" + roundNumber(lowest_departure));
-                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_departure/*/5*/));
+                    svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_departure/(max_selected_year - min_selected_year)));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function (d, i) {
                             return shades_green[shades_green.length - i]
