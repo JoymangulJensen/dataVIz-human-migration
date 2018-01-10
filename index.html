@@ -1214,7 +1214,7 @@
                     svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_arrive/(max_selected_year - min_selected_year)));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function (d, i) {
-                            return shades_red[shades_green.length - i]
+                            return shades_red[shades_red.length - i]
                         });
                     showLegendColoration()
                     break;
