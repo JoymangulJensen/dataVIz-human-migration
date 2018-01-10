@@ -241,6 +241,9 @@
         var shades_blue = ["#e6ecff", "#ccd9ff", "#b3c6ff", "#99b3ff", "#809fff", "#668cff", "#4d79ff", "#3366ff", "#1a53ff", "#0040ff", "#0039e6", "#0033cc", "#002db3", "#002699", "#002080", "#001a66", /*"#00134d", "#000d33"*/]
         // Shades of light green to saturated green.
         var shades_green = ["#e6ffe6", "#ccffcc", "#b3ffb3", "#99ff99", "#80ff80", "#66ff66", "#4dff4d", "#33ff33", "#1aff1a", "#00ff00", "#00e600", "#00cc00", "#00b300", "#009900", "#008000", "#006600", /*"#004d00", "#003300"*/]
+        // Shades of light red
+        var shades_red = ["#ffe6e6", "#ffcccc", "#ffb3b3", "#ff9999", "#ff8080", "#ff6666", "#ff4d4d", "#ff3333", "#ff1a1a", "#ff0000", "#e60000", "#cc0000", "#b30000", "#990000", "#800000", "#660000", /*"#004d00", "#003300"*/]
+
 
         var t = d3.transition()
             .duration(750)
@@ -635,7 +638,7 @@
         function displayArrive() {
 
             color = d3.scaleQuantize()
-                .range(shades_green)
+                .range(shades_red)
                 .domain([lowest_arrive, highest_arrive /5]);
 
             country_draw.transition(t).style("fill", function (d) {
@@ -1211,7 +1214,7 @@
                     svg_legend.selectAll(".coloration_card").select('.highest').text("" + roundNumber(highest_arrive/(max_selected_year - min_selected_year)));
                     svg_legend.selectAll(".coloration_card").selectAll('.rectangle')
                         .style("fill", function (d, i) {
-                            return shades_green[shades_green.length - i]
+                            return shades_red[shades_green.length - i]
                         });
                     showLegendColoration()
                     break;
