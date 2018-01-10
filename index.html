@@ -534,11 +534,15 @@
                     })
                     .on('click', function (country) { 
                         // Add heavier border, displays arcs, change tooltip informations.
-
-                        country_selected = country;
-                        updateLegendArrow(country_selected);
-                        updateBorderSelectedCountry();
-                        display();
+                        if(country_selected && country_selected == country){
+                            resetCountrySelected();
+                        }else{
+                            country_selected = country;
+                            updateLegendArrow(country_selected);
+                            updateBorderSelectedCountry();
+                            display();
+                        }
+                        
                     });
                 display();
             });
@@ -764,6 +768,15 @@
             }
 
             display();
+        }
+
+        function resetCountrySelected(){
+            country_selected = null;
+            arcs.transition(t).remove();
+            clearLegend();
+
+            updateMapTitle();
+            updateBorderSelectedCountry();
         }
 
         function reset() {
